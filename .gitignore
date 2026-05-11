@@ -1,0 +1,15 @@
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Editor configuraciones
+.vscode/
+.idea/
+
+# Archivos temporales
+*.tmp
+*.log
+
+# Firebase (por seguridad - si es repositorio público)
+# firebase-debug.log
+# .firebase/
