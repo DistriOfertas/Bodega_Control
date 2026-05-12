@@ -167,6 +167,11 @@ async function logout() {
   mostrarVista('login');
 }
 
+const userNameElement = document.getElementById('userName');
+  if (userNameElement) {
+    userNameElement.textContent = 'Sin sesión';
+  }
+
 function applyRoleVisibility() {
   const logged = !!state.currentUser;
   document.getElementById('mainTabs').style.display = logged ? 'grid' : 'none';
@@ -832,6 +837,14 @@ function renderTrazabilidad() {
 
 function render() {
   document.getElementById('roleBadge').textContent = `Rol: ${state.role}`;
+
+  const userNameElement = document.getElementById('userName');
+  if (userNameElement && state.currentUser) {
+    userNameElement.textContent = state.currentUser.nombre;
+  } else if (userNameElement && !state.currentUser) {
+    userNameElement.textContent = 'Sin sesión';
+  }
+
   llenarSelects();
   renderPedidos();
   renderOperacion();
