@@ -2,13 +2,14 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.10.0/fireba
 import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js';
 
 const FIREBASE_CONFIG = {
-  apiKey: 'PEGA_AQUI_TU_API_KEY',
-  authDomain: 'PEGA_AQUI_TU_AUTH_DOMAIN',
-  databaseURL: 'PEGA_AQUI_TU_DATABASE_URL',
-  projectId: 'PEGA_AQUI_TU_PROJECT_ID',
-  storageBucket: 'PEGA_AQUI_TU_STORAGE_BUCKET',
-  messagingSenderId: 'PEGA_AQUI_TU_MESSAGING_SENDER_ID',
-  appId: 'PEGA_AQUI_TU_APP_ID'
+  apiKey: "AIzaSyD-X-B73dJJ0lmw_zakg-MWL_E6jgWQbv4",
+  authDomain: "bodega-control-v3.firebaseapp.com",
+  databaseURL: "https://bodega-control-v3-default-rtdb.firebaseio.com",
+  projectId: "bodega-control-v3",
+  storageBucket: "bodega-control-v3.firebasestorage.app",
+  messagingSenderId: "362741672531",
+  appId: "1:362741672531:web:b3d6bedf83747f8bf774a6",
+  measurementId: "G-HHVTWP173E"
 };
 
 const STORAGE_KEY = 'bodega_control_v8_local';
