@@ -21,7 +21,6 @@ body {
   color: var(--text);
 }
 
-
 .app {
   max-width: 1100px;
   margin: 0 auto;
@@ -38,8 +37,10 @@ body {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
 }
 
-
-h1, h2, h3, p {
+h1,
+h2,
+h3,
+p {
   margin: 0;
 }
 
@@ -68,7 +69,11 @@ h3 {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: linear-gradient(180deg, rgba(2, 6, 23, 0.98), rgba(2, 6, 23, 0.95));
+  background: linear-gradient(
+    180deg,
+    rgba(2, 6, 23, 0.98),
+    rgba(2, 6, 23, 0.95)
+  );
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
   padding: 12px 16px;
@@ -99,7 +104,7 @@ h3 {
 }
 
 .topbar-info {
-   display: flex;
+  display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
@@ -134,7 +139,6 @@ h3 {
   white-space: nowrap;
 }
 
-
 .grid {
   display: grid;
   gap: 10px;
@@ -144,9 +148,6 @@ h3 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-
-
-
 label {
   display: block;
   font-size: 0.84rem;
@@ -154,7 +155,9 @@ label {
   margin-bottom: 6px;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   width: 100%;
   padding: 12px;
   border-radius: 12px;
@@ -262,7 +265,11 @@ button:disabled {
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 12px;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.25));
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.65),
+    rgba(15, 23, 42, 0.25)
+  );
   margin-bottom: 10px;
 }
 
@@ -273,7 +280,6 @@ button:disabled {
   align-items: start;
   margin-bottom: 10px;
 }
-
 
 .status {
   font-size: 0.76rem;
@@ -344,7 +350,6 @@ button:disabled {
   border-color: rgba(239, 68, 68, 0.35);
 }
 
-
 .kpis {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -352,17 +357,15 @@ button:disabled {
 }
 
 @media (max-width: 640px) {
-  
   .grid-2 {
     grid-template-columns: 1fr;
   }
 
-  
   .kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .tabs{
+  .tabs {
     overflow-x: auto;
     overflow-y: hidden;
   }
@@ -371,13 +374,12 @@ button:disabled {
     flex-direction: column;
     justify-content: center;
   }
-  
+
   .topbar-logo img {
     height: 45px;
   }
-  
+
   .pill {
-   
     justify-content: center;
   }
 }
@@ -397,7 +399,7 @@ button:disabled {
 
 .alert {
   border-left: 4px solid var(--warn);
-  background: rgba(245, 158, 11, 0.10);
+  background: rgba(245, 158, 11, 0.1);
   padding: 10px 12px;
   border-radius: 10px;
   margin-bottom: 8px;
@@ -415,7 +417,6 @@ button:disabled {
   color: var(--muted);
   font-size: 0.78rem;
 }
-
 
 .inline-assign {
   margin-bottom: 10px;

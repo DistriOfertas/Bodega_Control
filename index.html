@@ -1,279 +1,315 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="css/styles.css">
-  <link rel="icon" href="assets/logo.png" type="image/png">
-  <title>Bodega Control</title>
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="icon" href="assets/logo.png" type="image/png" />
+    <title>Bodega Control</title>
+  </head>
 
-<body>
-  <div class="app">
-    <div class="topbar">
-      <div class="topbar-logo">
-        <img src="assets/logo.png" alt="logo empresarial">
-        <p class="username" id="userName">Sin sesión</p>
+  <body>
+    <div class="app">
+      <div class="topbar">
+        <div class="topbar-logo">
+          <img src="assets/logo.png" alt="logo empresarial" />
+          <p class="username" id="userName">Sin sesión</p>
+        </div>
+        <div class="topbar-info">
+          <div>
+            <h1>Bodega Control v8</h1>
+            <p class="muted small">Preparado para Firebase</p>
+          </div>
+          <div class="pill" id="roleBadge">Rol: Sin sesión</div>
+        </div>
       </div>
-      <div class="topbar-info">
-        <div>
-        <h1>Bodega Control v8</h1>
-        <p class="muted small">Preparado para Firebase</p>
-      </div>
-      <div class="pill" id="roleBadge">Rol: Sin sesión</div>
+
+      <section id="view-login">
+        <div class="card">
+          <h2>Ingreso al sistema</h2>
+          <p class="muted small">
+            Elmer y Paola tienen acceso total. Edwin tiene acceso operativo
+            restringido.
+          </p>
+          <div class="grid grid-2" style="margin-top: 10px">
+            <div>
+              <label>Usuario</label>
+              <select id="loginUser">
+                <option value="elmer">Elmer Cagüeñas</option>
+                <option value="paola">Paola</option>
+                <option value="edwin">Edwin</option>
+              </select>
+            </div>
+            <div>
+              <label>PIN</label>
+              <input
+                id="loginPin"
+                type="password"
+                placeholder="Escribe el PIN"
+              />
+            </div>
+          </div>
+          <div class="btns" style="margin-top: 12px">
+            <button class="btn-primary" id="btnLogin" type="button">
+              Ingresar
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-pedidos" class="hidden">
+        <div class="card">
+          <h2>Nuevo pedido</h2>
+          <div class="grid grid-2">
+            <div>
+              <label>Proveedor</label>
+              <input id="proveedor" placeholder="Ej: Arroz Roa" />
+            </div>
+            <div>
+              <label>Factura / Remisión</label>
+              <input id="factura" placeholder="Ej: F-10045" />
+            </div>
+            <div>
+              <label>Fecha programada</label>
+              <input class="form-control" id="fechaProgramada" type="date" />
+            </div>
+            <div>
+              <label>Hora programada</label>
+              <input class="form-control" id="horaProgramada" type="time" />
+            </div>
+            <div>
+              <label>Comprador</label>
+              <input id="comprador" placeholder="Ej: Elmer" />
+            </div>
+            <div>
+              <label>Bodeguero asignado</label>
+              <select id="bodegueroSelect"></select>
+            </div>
+          </div>
+          <div style="margin-top: 10px">
+            <label>Observaciones</label>
+            <textarea
+              id="observaciones"
+              placeholder="Notas del pedido, novedad o comentario"
+            ></textarea>
+          </div>
+          <div class="btns" style="margin-top: 12px">
+            <button class="btn-primary" id="btnGuardarPedido" type="button">
+              Guardar pedido
+            </button>
+            <button class="btn-soft" id="btnDemo" type="button">
+              Cargar demo
+            </button>
+            <button class="btn-danger" id="btnBorrarTodo" type="button">
+              Borrar todo
+            </button>
+          </div>
+          <p class="footer-note">
+            Solo Elmer y Paola pueden crear y reprogramar pedidos.
+          </p>
+        </div>
+        <div class="card">
+          <h2>Pedidos programados</h2>
+          <div id="listaPedidos"></div>
+        </div>
+      </section>
+
+      <section id="view-operacion" class="hidden">
+        <div class="card">
+          <h2>Operación del día</h2>
+          <p class="muted small">
+            Edwin, Elmer y Paola pueden operar inventario, recibo y personas de
+            descarga.
+          </p>
+        </div>
+        <div id="listaOperacion"></div>
+      </section>
+
+      <section id="view-dashboard" class="hidden">
+        <div class="card">
+          <h2>Resumen del personal</h2>
+          <div class="kpis">
+            <div class="kpi">
+              <div class="muted small">Disponibles</div>
+              <div class="value" id="kpiDisponibles">0</div>
+            </div>
+            <div class="kpi">
+              <div class="muted small">En almuerzo</div>
+              <div class="value" id="kpiAlmuerzo">0</div>
+            </div>
+            <div class="kpi">
+              <div class="muted small">En inventario</div>
+              <div class="value" id="kpiInventarioPersonal">0</div>
+            </div>
+            <div class="kpi">
+              <div class="muted small">En recibo</div>
+              <div class="value" id="kpiReciboPersonal">0</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Dashboard</h2>
+          <div class="kpis">
+            <div class="kpi">
+              <div class="muted small">Pedidos activos</div>
+              <div class="value" id="kpiActivos">0</div>
+            </div>
+            <div class="kpi">
+              <div class="muted small">Reprogramados</div>
+              <div class="value" id="kpiReprog">0</div>
+            </div>
+            <div class="kpi">
+              <div class="muted small">Inventario prom. (min)</div>
+              <div class="value" id="kpiInv">0</div>
+            </div>
+            <div class="kpi">
+              <div class="muted small">Recibo prom. (min)</div>
+              <div class="value" id="kpiRec">0</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Alertas</h2>
+          <div id="listaAlertas"></div>
+        </div>
+      </section>
+
+      <section id="view-historial" class="hidden">
+        <div class="card">
+          <h2>Historial</h2>
+          <div id="listaHistorial"></div>
+        </div>
+      </section>
+
+      <section id="view-almuerzo" class="hidden">
+        <div class="card">
+          <h2>Control de almuerzos</h2>
+          <p class="muted small">
+            Registra quién sale a almorzar y a qué hora regresa.
+          </p>
+          <div class="grid grid-2" style="margin-top: 10px">
+            <div>
+              <label>Colaborador</label>
+              <select id="almuerzoEmpleado"></select>
+            </div>
+          </div>
+          <div class="btns" style="margin-top: 12px">
+            <button class="btn-warn" id="btnSalidaAlmuerzo" type="button">
+              Registrar salida a almuerzo
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Quién está en almuerzo</h2>
+          <div id="listaAlmuerzoActivos"></div>
+        </div>
+        <div class="card">
+          <h2>Historial de almuerzos</h2>
+          <div id="listaAlmuerzoHistorial"></div>
+        </div>
+      </section>
+
+      <section id="view-personal" class="hidden">
+        <div class="card">
+          <h2>Personal</h2>
+          <p class="muted small">
+            Solo Elmer y Paola pueden crear o eliminar personal.
+          </p>
+          <div class="grid grid-2" style="margin-top: 10px">
+            <div>
+              <label>Nombre</label>
+              <input id="personalNombre" placeholder="Ej: Carlos" />
+            </div>
+            <div>
+              <label>Cargo / área</label>
+              <input id="personalCargo" placeholder="Ej: Bodega" />
+            </div>
+          </div>
+          <div class="btns" style="margin-top: 12px">
+            <button class="btn-primary" id="btnGuardarPersonal" type="button">
+              Guardar empleado
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Estado del personal</h2>
+          <div id="listaPersonal"></div>
+        </div>
+      </section>
+
+      <section id="view-reporte" class="hidden">
+        <div class="card">
+          <h2>Reporte diario</h2>
+          <p class="muted small">
+            Resumen del día para operación, tiempos y almuerzos.
+          </p>
+          <div class="grid grid-2" style="margin-top: 10px">
+            <div>
+              <label>Fecha del reporte</label>
+              <input id="fechaReporte" type="date" />
+            </div>
+            <div class="btns" style="align-items: end">
+              <button class="btn-blue" id="btnGenerarReporte" type="button">
+                Generar reporte
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Resumen general</h2>
+          <div class="kpis">
+            <div class="kpi">
+              <div class="muted small">Pedidos creados</div>
+              <div class="value" id="repPedidosCreados">0</div>
+            </div>
+            <div class="kpi">
+              <div class="muted small">Pedidos finalizados</div>
+              <div class="value" id="repPedidosFinalizados">0</div>
+            </div>
+            <div class="kpi">
+              <div class="muted small">Inv. promedio</div>
+              <div class="value" id="repInvProm">0</div>
+            </div>
+            <div class="kpi">
+              <div class="muted small">Recibo promedio</div>
+              <div class="value" id="repRecProm">0</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Pedidos del día</h2>
+          <div id="reportePedidos"></div>
+        </div>
+        <div class="card">
+          <h2>Almuerzos del día</h2>
+          <div id="reporteAlmuerzos"></div>
+        </div>
+      </section>
+
+      <section id="view-trazabilidad" class="hidden">
+        <div class="card">
+          <h2>Trazabilidad</h2>
+          <p class="muted small">Registro de quién hizo cada acción.</p>
+          <div id="listaTrazabilidad"></div>
+        </div>
+      </section>
     </div>
+
+    <div class="tabs" id="mainTabs" style="display: none">
+      <button class="tab active" data-view="pedidos" type="button">
+        Pedidos
+      </button>
+      <button class="tab" data-view="operacion" type="button">Operación</button>
+      <button class="tab" data-view="dashboard" type="button">Dashboard</button>
+      <button class="tab" data-view="historial" type="button">Historial</button>
+      <button class="tab" data-view="almuerzo" type="button">Almuerzo</button>
+      <button class="tab" data-view="personal" type="button">Personal</button>
+      <button class="tab" data-view="reporte" type="button">Reporte</button>
+      <button class="tab" data-view="trazabilidad" type="button">
+        Trazabilidad
+      </button>
     </div>
-  
+  </body>
 
-    <section id="view-login">
-      <div class="card">
-        <h2>Ingreso al sistema</h2>
-        <p class="muted small">Elmer y Paola tienen acceso total. Edwin tiene acceso operativo restringido.</p>
-        <div class="grid grid-2" style="margin-top:10px">
-          <div>
-            <label>Usuario</label>
-            <select id="loginUser">
-              <option value="elmer">Elmer Cagüeñas</option>
-              <option value="paola">Paola</option>
-              <option value="edwin">Edwin</option>
-            </select>
-          </div>
-          <div>
-            <label>PIN</label>
-            <input id="loginPin" type="password" placeholder="Escribe el PIN">
-          </div>
-        </div>
-        <div class="btns" style="margin-top:12px">
-          <button class="btn-primary" id="btnLogin" type="button">Ingresar</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="view-pedidos" class="hidden">
-      <div class="card">
-        <h2>Nuevo pedido</h2>
-        <div class="grid grid-2">
-          <div>
-            <label>Proveedor</label>
-            <input id="proveedor" placeholder="Ej: Arroz Roa">
-          </div>
-          <div>
-            <label>Factura / Remisión</label>
-            <input id="factura" placeholder="Ej: F-10045">
-          </div>
-          <div>
-            <label>Fecha programada</label>
-            <input class="form-control" id="fechaProgramada" type="date">
-          </div>
-          <div>
-            <label>Hora programada</label>
-            <input class="form-control" id="horaProgramada" type="time">
-          </div>
-          <div>
-            <label>Comprador</label>
-            <input id="comprador" placeholder="Ej: Elmer">
-          </div>
-          <div>
-            <label>Bodeguero asignado</label>
-            <select id="bodegueroSelect"></select>
-          </div>
-        </div>
-        <div style="margin-top:10px">
-          <label>Observaciones</label>
-          <textarea id="observaciones" placeholder="Notas del pedido, novedad o comentario"></textarea>
-        </div>
-        <div class="btns" style="margin-top:12px">
-          <button class="btn-primary" id="btnGuardarPedido" type="button">Guardar pedido</button>
-          <button class="btn-soft" id="btnDemo" type="button">Cargar demo</button>
-          <button class="btn-danger" id="btnBorrarTodo" type="button">Borrar todo</button>
-        </div>
-        <p class="footer-note">Solo Elmer y Paola pueden crear y reprogramar pedidos.</p>
-      </div>
-      <div class="card">
-        <h2>Pedidos programados</h2>
-        <div id="listaPedidos"></div>
-      </div>
-    </section>
-
-    <section id="view-operacion" class="hidden">
-      <div class="card">
-        <h2>Operación del día</h2>
-        <p class="muted small">Edwin, Elmer y Paola pueden operar inventario, recibo y personas de descarga.</p>
-      </div>
-      <div id="listaOperacion"></div>
-    </section>
-
-    <section id="view-dashboard" class="hidden">
-      <div class="card">
-        <h2>Resumen del personal</h2>
-        <div class="kpis">
-          <div class="kpi">
-            <div class="muted small">Disponibles</div>
-            <div class="value" id="kpiDisponibles">0</div>
-          </div>
-          <div class="kpi">
-            <div class="muted small">En almuerzo</div>
-            <div class="value" id="kpiAlmuerzo">0</div>
-          </div>
-          <div class="kpi">
-            <div class="muted small">En inventario</div>
-            <div class="value" id="kpiInventarioPersonal">0</div>
-          </div>
-          <div class="kpi">
-            <div class="muted small">En recibo</div>
-            <div class="value" id="kpiReciboPersonal">0</div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <h2>Dashboard</h2>
-        <div class="kpis">
-          <div class="kpi">
-            <div class="muted small">Pedidos activos</div>
-            <div class="value" id="kpiActivos">0</div>
-          </div>
-          <div class="kpi">
-            <div class="muted small">Reprogramados</div>
-            <div class="value" id="kpiReprog">0</div>
-          </div>
-          <div class="kpi">
-            <div class="muted small">Inventario prom. (min)</div>
-            <div class="value" id="kpiInv">0</div>
-          </div>
-          <div class="kpi">
-            <div class="muted small">Recibo prom. (min)</div>
-            <div class="value" id="kpiRec">0</div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <h2>Alertas</h2>
-        <div id="listaAlertas"></div>
-      </div>
-    </section>
-
-    <section id="view-historial" class="hidden">
-      <div class="card">
-        <h2>Historial</h2>
-        <div id="listaHistorial"></div>
-      </div>
-    </section>
-
-    <section id="view-almuerzo" class="hidden">
-      <div class="card">
-        <h2>Control de almuerzos</h2>
-        <p class="muted small">Registra quién sale a almorzar y a qué hora regresa.</p>
-        <div class="grid grid-2" style="margin-top:10px">
-          <div>
-            <label>Colaborador</label>
-            <select id="almuerzoEmpleado"></select>
-          </div>
-        </div>
-        <div class="btns" style="margin-top:12px">
-          <button class="btn-warn" id="btnSalidaAlmuerzo" type="button">Registrar salida a almuerzo</button>
-        </div>
-      </div>
-      <div class="card">
-        <h2>Quién está en almuerzo</h2>
-        <div id="listaAlmuerzoActivos"></div>
-      </div>
-      <div class="card">
-        <h2>Historial de almuerzos</h2>
-        <div id="listaAlmuerzoHistorial"></div>
-      </div>
-    </section>
-
-    <section id="view-personal" class="hidden">
-      <div class="card">
-        <h2>Personal</h2>
-        <p class="muted small">Solo Elmer y Paola pueden crear o eliminar personal.</p>
-        <div class="grid grid-2" style="margin-top:10px">
-          <div>
-            <label>Nombre</label>
-            <input id="personalNombre" placeholder="Ej: Carlos">
-          </div>
-          <div>
-            <label>Cargo / área</label>
-            <input id="personalCargo" placeholder="Ej: Bodega">
-          </div>
-        </div>
-        <div class="btns" style="margin-top:12px">
-          <button class="btn-primary" id="btnGuardarPersonal" type="button">Guardar empleado</button>
-        </div>
-      </div>
-      <div class="card">
-        <h2>Estado del personal</h2>
-        <div id="listaPersonal"></div>
-      </div>
-    </section>
-
-    <section id="view-reporte" class="hidden">
-      <div class="card">
-        <h2>Reporte diario</h2>
-        <p class="muted small">Resumen del día para operación, tiempos y almuerzos.</p>
-        <div class="grid grid-2" style="margin-top:10px">
-          <div>
-            <label>Fecha del reporte</label>
-            <input id="fechaReporte" type="date">
-          </div>
-          <div class="btns" style="align-items:end">
-            <button class="btn-blue" id="btnGenerarReporte" type="button">Generar reporte</button>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <h2>Resumen general</h2>
-        <div class="kpis">
-          <div class="kpi">
-            <div class="muted small">Pedidos creados</div>
-            <div class="value" id="repPedidosCreados">0</div>
-          </div>
-          <div class="kpi">
-            <div class="muted small">Pedidos finalizados</div>
-            <div class="value" id="repPedidosFinalizados">0</div>
-          </div>
-          <div class="kpi">
-            <div class="muted small">Inv. promedio</div>
-            <div class="value" id="repInvProm">0</div>
-          </div>
-          <div class="kpi">
-            <div class="muted small">Recibo promedio</div>
-            <div class="value" id="repRecProm">0</div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <h2>Pedidos del día</h2>
-        <div id="reportePedidos"></div>
-      </div>
-      <div class="card">
-        <h2>Almuerzos del día</h2>
-        <div id="reporteAlmuerzos"></div>
-      </div>
-    </section>
-
-    <section id="view-trazabilidad" class="hidden">
-      <div class="card">
-        <h2>Trazabilidad</h2>
-        <p class="muted small">Registro de quién hizo cada acción.</p>
-        <div id="listaTrazabilidad"></div>
-      </div>
-    </section>
-  </div>
-
-  <div class="tabs" id="mainTabs" style="display:none">
-    <button class="tab active" data-view="pedidos" type="button">Pedidos</button>
-    <button class="tab" data-view="operacion" type="button">Operación</button>
-    <button class="tab" data-view="dashboard" type="button">Dashboard</button>
-    <button class="tab" data-view="historial" type="button">Historial</button>
-    <button class="tab" data-view="almuerzo" type="button">Almuerzo</button>
-    <button class="tab" data-view="personal" type="button">Personal</button>
-    <button class="tab" data-view="reporte" type="button">Reporte</button>
-    <button class="tab" data-view="trazabilidad" type="button">Trazabilidad</button>
-  </div>
-
-</body>
-
-<script type="module" src="js/script.js"></script>
-
+  <script type="module" src="js/script.js"></script>
 </html>
