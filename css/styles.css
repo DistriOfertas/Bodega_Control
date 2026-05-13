@@ -58,7 +58,8 @@ h3 {
 }
 
 .muted {
-  color: var(--muted);
+  color: var(--text);
+  font-weight: bold;
 }
 
 .small {
@@ -192,8 +193,8 @@ button:disabled {
 }
 
 .btn-primary {
-  background: var(--accent);
-  color: #052e16;
+  background: var(--violet);
+  color: var(--text);
 }
 
 .btn-soft {
@@ -224,6 +225,7 @@ button:disabled {
 
 .tabs {
   position: fixed;
+  justify-content: center;
   bottom: 0;
   left: 0;
   right: 0;
@@ -310,8 +312,8 @@ button:disabled {
 }
 
 .status.finalizado {
-  background: rgba(100, 116, 139, 0.18);
-  color: #cbd5e1;
+  background: var(--accent);
+  color: var(--soft);
 }
 
 .status.almuerzo {
@@ -367,7 +369,8 @@ button:disabled {
 
   .tabs {
     overflow-x: auto;
-    overflow-y: hidden;
+    padding-bottom: 14px;
+    justify-content: left;
   }
 
   .topbar-info {
@@ -385,7 +388,7 @@ button:disabled {
 }
 
 .kpi {
-  background: #0b1220;
+  background: var(--violet);
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 12px;

@@ -27,17 +27,14 @@
       <section id="view-login">
         <div class="card">
           <h2>Ingreso al sistema</h2>
-          <p class="muted small">
-            Elmer y Paola tienen acceso total. Edwin tiene acceso operativo
-            restringido.
-          </p>
           <div class="grid grid-2" style="margin-top: 10px">
             <div>
               <label>Usuario</label>
               <select id="loginUser">
                 <option value="elmer">Elmer Cagüeñas</option>
+                <option value="mateo">Mateo</option>
                 <option value="paola">Paola</option>
-                <option value="edwin">Edwin</option>
+                <option value="juan">Juanito</option>
               </select>
             </div>
             <div>
@@ -104,9 +101,6 @@
               Borrar todo
             </button>
           </div>
-          <p class="footer-note">
-            Solo Elmer y Paola pueden crear y reprogramar pedidos.
-          </p>
         </div>
         <div class="card">
           <h2>Pedidos programados</h2>
@@ -117,10 +111,6 @@
       <section id="view-operacion" class="hidden">
         <div class="card">
           <h2>Operación del día</h2>
-          <p class="muted small">
-            Edwin, Elmer y Paola pueden operar inventario, recibo y personas de
-            descarga.
-          </p>
         </div>
         <div id="listaOperacion"></div>
       </section>
@@ -296,20 +286,16 @@
     </div>
 
     <div class="tabs" id="mainTabs" style="display: none">
-      <button class="tab active" data-view="pedidos" type="button">
-        Pedidos
-      </button>
-      <button class="tab" data-view="operacion" type="button">Operación</button>
-      <button class="tab" data-view="dashboard" type="button">Dashboard</button>
-      <button class="tab" data-view="historial" type="button">Historial</button>
-      <button class="tab" data-view="almuerzo" type="button">Almuerzo</button>
-      <button class="tab" data-view="personal" type="button">Personal</button>
-      <button class="tab" data-view="reporte" type="button">Reporte</button>
-      <button class="tab" data-view="trazabilidad" type="button">
-        Trazabilidad
-      </button>
+      <button class="tab" data-view="pedidos">📦 Pedidos</button>
+      <button class="tab" data-view="operacion">⚙️ Operación</button>
+      <button class="tab" data-view="dashboard">📊 Dashboard</button>
+      <button class="tab" data-view="historial">📜 Historial</button>
+      <button class="tab" data-view="almuerzo">🍽️ Almuerzo</button>
+      <button class="tab" data-view="personal">👥 Personal</button>
+      <button class="tab" data-view="reporte">📈 Reporte</button>
+      <button class="tab" data-view="trazabilidad">🔍 Trazabilidad</button>
     </div>
   </body>
 
-  <script type="module" src="js/script.js"></script>
+  <script type="module" src="js/main.js"></script>
 </html>
