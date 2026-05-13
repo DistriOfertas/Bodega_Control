@@ -3,7 +3,8 @@ import { logAction } from "../services/logger.js";
 import { persist } from "../services/storage.js";
 import { render, mostrarVista } from "../ui/render.js";
 import { applyRoleVisibility, initTabs } from "../ui/tabs.js";
-import { cleanupInactivityMonitor } from "../services/inactivity.js"; // ← IMPORTAR
+import { cleanupInactivityMonitor } from "../services/inactivity.js";
+import { STORAGE_KEY } from "../utils/constants.js"; // ← AÑADIR ESTA IMPORTACIÓN
 
 export async function login() {
   const username = document.getElementById("loginUser").value;
@@ -22,12 +23,6 @@ export async function login() {
     alert("Usuario o PIN incorrecto.");
     return;
   }
-
-  //if (!user) {
-  //console.log("❌ Usuario no existe");
-  //alert("Usuario o PIN incorrecto.");
-  //return;
-  //}
 
   const currentUser = {
     username: user.username,
@@ -57,14 +52,38 @@ export async function logout() {
   const state = getState();
   if (!state.currentUser) return;
 
-  cleanupInactivityMonitor(); // Limpiar monitor de inactividad al cerrar sesión
+  console.log("Cerrando sesión para:", state.currentUser.nombre); // Depuración
+
+  // Limpiar monitor de inactividad
+  cleanupInactivityMonitor();
 
   await logAction("logout", "Cierre de sesión");
+
+  // Actualizar estado localmente
+  state.currentUser = null;
+  state.role = "Sin sesión";
+
+  // Actualizar usando updateState (pero evitando que persista a Firebase)
   updateState("currentUser", null);
   updateState("role", "Sin sesión");
-  await persist();
+
+  // Guardar SOLO en localStorage
+  const localState = getState();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(localState));
+
+  console.log(
+    "Estado guardado en localStorage. CurrentUser:",
+    localState.currentUser,
+  ); // Depuración
+
+  // Asegurar que la UI se actualice
   applyRoleVisibility();
-  initTabs();
   render();
   mostrarVista("login");
+
+  // Forzar recarga visual si es necesario
+  setTimeout(() => {
+    const loginView = document.getElementById("view-login");
+    if (loginView) loginView.classList.remove("hidden");
+  }, 100);
 }
