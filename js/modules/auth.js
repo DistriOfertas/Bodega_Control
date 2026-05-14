@@ -5,6 +5,10 @@ import { render, mostrarVista } from "../ui/render.js";
 import { applyRoleVisibility, initTabs } from "../ui/tabs.js";
 import { cleanupInactivityMonitor } from "../services/inactivity.js";
 import { STORAGE_KEY } from "../utils/constants.js";
+import {
+  requestNotificationPermission,
+  notifyUsuarioLogueado,
+} from "../services/notifications.js";
 
 export async function login() {
   const username = document.getElementById("loginUser").value;
@@ -45,6 +49,9 @@ export async function login() {
 
   const vistaInicial = user.role === "coordinador" ? "operacion" : "pedidos";
   mostrarVista(vistaInicial);
+
+  await requestNotificationPermission();
+  notifyUsuarioLogueado(currentUser);
 }
 
 export async function logout() {

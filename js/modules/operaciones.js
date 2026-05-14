@@ -2,6 +2,11 @@ import { getState, updateState, canOperate } from "../services/state.js";
 import { logAction } from "../services/logger.js";
 import { persist } from "../services/storage.js";
 import { render } from "../ui/render.js";
+import {
+  notifyInventarioIniciado,
+  notifyReciboIniciado,
+  notifyPedidoFinalizado,
+} from "../services/notifications.js";
 
 export async function asignarBodegueroOperacion(id) {
   if (!canOperate()) return alert("No tienes permiso para esta acción.");
@@ -63,6 +68,8 @@ export async function iniciarInventario(id) {
   );
   await persist();
   render();
+
+  notifyInventarioIniciado(p, state.currentUser?.nombre);
 }
 
 export async function finalizarInventario(id) {
@@ -107,6 +114,8 @@ export async function iniciarRecibo(id) {
   await logAction("inicio_recibo", `Pedido ${p.factura}: inició recibo`);
   await persist();
   render();
+
+  notifyReciboIniciado(p, state.currentUser?.nombre);
 }
 
 export async function finalizarRecibo(id) {
@@ -129,6 +138,8 @@ export async function finalizarRecibo(id) {
   await persist();
   render();
   alert(`Pedido ${p.factura} finalizado.`);
+
+  notifyPedidoFinalizado(p, state.currentUser?.nombre);
 }
 
 function pedidoBloqueadoParaEdwin(p) {

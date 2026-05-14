@@ -3,6 +3,11 @@ import { logAction } from "../services/logger.js";
 import { persist } from "../services/storage.js";
 import { uid } from "../utils/helpers.js";
 import { render } from "../ui/render.js";
+import {
+  notifyPedidoCreado,
+  notifyPedidoFinalizado,
+  notifyPedidoReprogramado,
+} from "../services/notifications.js";
 
 export async function crearPedido() {
   if (!isAdmin())
@@ -51,6 +56,9 @@ export async function crearPedido() {
   limpiarFormularioPedido();
   await persist();
   render();
+
+  notifyPedidoCreado(nuevoPedido, state.currentUser?.nombre);
+
   alert("Pedido guardado correctamente.");
 }
 
@@ -100,6 +108,8 @@ export async function reprogramarPedido(id) {
   );
   await persist();
   render();
+
+  notifyPedidoReprogramado(pedido, state.currentUser?.nombre);
 }
 
 export async function editarPersonas(id) {

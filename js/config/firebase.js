@@ -9,6 +9,7 @@ import {
 import { DEFAULT_USERS, STORAGE_KEY } from "../utils/constants.js";
 import { getState, asegurarState } from "../services/state.js";
 import { render } from "../ui/render.js";
+import { showNotification } from "../services/notifications.js";
 
 export const FIREBASE_CONFIG = {
   apiKey: "AIzaSyD-X-B73dJJ0lmw_zakg-MWL_E6jgWQbv4",
@@ -24,6 +25,12 @@ export const FIREBASE_CONFIG = {
 export let db = null;
 export let firebaseReady = false;
 export let syncingFromCloud = false;
+
+// Variable para guardar estado anterior y detectar cambios
+let previousState = {
+  pedidosCount: 0,
+  pedidosFirstId: null,
+};
 
 export function hasFirebaseConfig() {
   return (
@@ -61,6 +68,10 @@ export async function initFirebase() {
         ? data.trazabilidad
         : [];
       state.users = mergedUsers;
+
+      // Guardar estado inicial para comparar después
+      previousState.pedidosCount = state.pedidos.length;
+      previousState.pedidosFirstId = state.pedidos[0]?.id || null;
 
       // Restaurar sesión desde localStorage (NO desde Firebase)
       const localData = localStorage.getItem(STORAGE_KEY);
@@ -111,19 +122,108 @@ export async function initFirebase() {
       syncingFromCloud = true;
       const currentState = getState();
 
+      // Guardar datos anteriores para comparar
+      const oldPedidosCount = previousState.pedidosCount;
+      const oldFirstPedidoId = previousState.pedidosFirstId;
+
       // Sincronizar SOLO datos, NO la sesión
       const remoteUsers = data.users || {};
       const mergedRemoteUsers = { ...DEFAULT_USERS, ...remoteUsers };
 
-      currentState.pedidos = Array.isArray(data.pedidos) ? data.pedidos : [];
-      currentState.almuerzos = Array.isArray(data.almuerzos)
+      const nuevosPedidos = Array.isArray(data.pedidos) ? data.pedidos : [];
+      const nuevosAlmuerzos = Array.isArray(data.almuerzos)
         ? data.almuerzos
         : [];
-      currentState.personal = Array.isArray(data.personal) ? data.personal : [];
-      currentState.trazabilidad = Array.isArray(data.trazabilidad)
+      const nuevoPersonal = Array.isArray(data.personal) ? data.personal : [];
+      const nuevaTrazabilidad = Array.isArray(data.trazabilidad)
         ? data.trazabilidad
         : [];
+
+      // ========== DETECTAR CAMBIOS PARA NOTIFICACIONES ==========
+
+      // Detectar si se agregó un nuevo pedido (alguien más lo creó)
+      if (nuevosPedidos.length > oldPedidosCount && nuevosPedidos.length > 0) {
+        const nuevoPedido = nuevosPedidos[0];
+        // Verificar que sea realmente nuevo (no es el mismo que ya teníamos)
+        if (nuevoPedido.id !== oldFirstPedidoId) {
+          // Obtener el usuario actual (para no notificarse a sí mismo)
+          const currentUser = currentState.currentUser;
+
+          // Buscar quién creó el pedido en trazabilidad
+          const logEntry = nuevaTrazabilidad.find(
+            (log) =>
+              log.tipo === "crear_pedido" &&
+              log.detalle.includes(nuevoPedido.factura),
+          );
+
+          const creador = logEntry?.usuario || "Alguien";
+
+          // No notificar si el creador es el usuario actual
+          if (currentUser?.nombre !== creador) {
+            showNotification(
+              "📦 Nuevo Pedido",
+              `${creador} creó pedido para ${nuevoPedido.proveedor} (Factura: ${nuevoPedido.factura})`,
+              {
+                onClick: () => {
+                  const event = new CustomEvent("changeView", {
+                    detail: { view: "pedidos" },
+                  });
+                  document.dispatchEvent(event);
+                },
+              },
+            );
+          }
+        }
+      }
+
+      // Detectar si se finalizó un pedido (alguien más lo finalizó)
+      const oldFinalizados = currentState.pedidos.filter(
+        (p) => p.estado === "finalizado",
+      ).length;
+      const nuevosFinalizados = nuevosPedidos.filter(
+        (p) => p.estado === "finalizado",
+      ).length;
+
+      if (nuevosFinalizados > oldFinalizados) {
+        const pedidoFinalizado = nuevosPedidos.find(
+          (p) => p.estado === "finalizado",
+        );
+        if (pedidoFinalizado) {
+          const logEntry = nuevaTrazabilidad.find(
+            (log) =>
+              log.tipo === "fin_recibo" &&
+              log.detalle.includes(pedidoFinalizado.factura),
+          );
+          const usuario = logEntry?.usuario || "Alguien";
+
+          const currentUser = currentState.currentUser;
+          if (currentUser?.nombre !== usuario) {
+            showNotification(
+              "✅ Pedido Finalizado",
+              `${usuario} finalizó pedido de ${pedidoFinalizado.proveedor}`,
+              {
+                onClick: () => {
+                  const event = new CustomEvent("changeView", {
+                    detail: { view: "historial" },
+                  });
+                  document.dispatchEvent(event);
+                },
+              },
+            );
+          }
+        }
+      }
+
+      // ========== ACTUALIZAR ESTADO ==========
+      currentState.pedidos = nuevosPedidos;
+      currentState.almuerzos = nuevosAlmuerzos;
+      currentState.personal = nuevoPersonal;
+      currentState.trazabilidad = nuevaTrazabilidad;
       currentState.users = mergedRemoteUsers;
+
+      // Actualizar estado anterior para futuras comparaciones
+      previousState.pedidosCount = nuevosPedidos.length;
+      previousState.pedidosFirstId = nuevosPedidos[0]?.id || null;
 
       // Conservar la sesión actual (NO se sobrescribe)
       console.log(
