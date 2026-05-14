@@ -25,7 +25,7 @@ export async function registrarSalidaAlmuerzo() {
   updateState("almuerzos", almuerzos);
 
   document.getElementById("almuerzoEmpleado").value = "";
-  await logAction("salida_almuerzo", `${emp.nombre} salió a almuerzo`);
+  await logAction("Salida de almuerzo", `${emp.nombre} salió a almuerzo`);
   await persist();
   render();
 }
@@ -41,7 +41,10 @@ export async function registrarRegresoAlmuerzo(id) {
   const almuerzos = state.almuerzos.map((a) => (a.id === id ? almuerzo : a));
   updateState("almuerzos", almuerzos);
 
-  await logAction("regreso_almuerzo", `${almuerzo.nombre} regresó de almuerzo`);
+  await logAction(
+    "Regreso de almuerzo",
+    `${almuerzo.nombre} regresó de almuerzo`,
+  );
   await persist();
   render();
 }

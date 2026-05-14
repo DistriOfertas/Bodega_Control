@@ -152,7 +152,7 @@ export async function initFirebase() {
           // Buscar quién creó el pedido en trazabilidad
           const logEntry = nuevaTrazabilidad.find(
             (log) =>
-              log.tipo === "crear_pedido" &&
+              log.tipo === "Creación de pedido" &&
               log.detalle.includes(nuevoPedido.factura),
           );
 

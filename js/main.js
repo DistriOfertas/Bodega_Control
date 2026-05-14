@@ -5,6 +5,7 @@ import { render, mostrarVista } from "./ui/render.js";
 import { applyRoleVisibility, initTabs } from "./ui/tabs.js";
 import { getState } from "./services/state.js";
 import { requestNotificationPermission } from "./services/notifications.js";
+import { setTrazabilidadSearch } from "./ui/render.js";
 
 // Importar funciones globales necesarias
 import { eliminarEmpleado } from "./modules/personal.js";
@@ -35,6 +36,7 @@ window.iniciarRecibo = iniciarRecibo;
 window.finalizarRecibo = finalizarRecibo;
 window.registrarRegresoAlmuerzo = registrarRegresoAlmuerzo;
 window.borrarTodo = borrarTodo;
+window.setTrazabilidadSearch = setTrazabilidadSearch;
 
 // ========== LISTENER PARA CAMBIO DE VISTA DESDE NOTIFICACIONES ==========
 document.addEventListener("changeView", (e) => {
@@ -85,3 +87,9 @@ document.addEventListener("changeView", (e) => {
     await requestNotificationPermission();
   }
 })();
+
+// Función para manejar la búsqueda en trazabilidad
+window.handleTrazabilidadSearch = (event) => {
+  const searchTerm = event.target.value;
+  setTrazabilidadSearch(searchTerm);
+};

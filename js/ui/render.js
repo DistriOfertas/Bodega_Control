@@ -7,6 +7,8 @@ import {
 } from "../utils/helpers.js";
 import { llenarSelects } from "./events.js";
 
+let currentTrazabilidadSearch = "";
+
 // Función principal de renderizado
 export function render() {
   const state = getState();
@@ -273,7 +275,26 @@ export function renderTrazabilidad() {
     return;
   }
 
-  box.innerHTML = state.trazabilidad
+  // Aplicar filtro de búsqueda
+  let filteredLogs = [...state.trazabilidad];
+
+  if (currentTrazabilidadSearch.trim() !== "") {
+    const searchTerm = currentTrazabilidadSearch.toLowerCase().trim();
+    filteredLogs = state.trazabilidad.filter(
+      (log) =>
+        log.tipo.toLowerCase().includes(searchTerm) ||
+        log.detalle.toLowerCase().includes(searchTerm) ||
+        log.usuario.toLowerCase().includes(searchTerm) ||
+        log.rol.toLowerCase().includes(searchTerm),
+    );
+  }
+
+  if (filteredLogs.length === 0) {
+    box.innerHTML = `<div class="empty">No hay resultados para "${currentTrazabilidadSearch}"</div>`;
+    return;
+  }
+
+  box.innerHTML = filteredLogs
     .map(
       (t) => `<div class="order">
     <div class="order-top">
@@ -290,6 +311,12 @@ export function renderTrazabilidad() {
   </div>`,
     )
     .join("");
+}
+
+// Función para actualizar la búsqueda
+export function setTrazabilidadSearch(searchTerm) {
+  currentTrazabilidadSearch = searchTerm;
+  renderTrazabilidad();
 }
 
 export function mostrarVista(nombre) {

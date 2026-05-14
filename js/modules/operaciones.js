@@ -30,7 +30,7 @@ export async function asignarBodegueroOperacion(id) {
   updateState("pedidos", pedidos);
 
   await logAction(
-    "asignar_bodeguero",
+    "Asignación de bodeguero",
     `Pedido ${p.factura}: bodeguero asignado ${emp.nombre}`,
   );
   await persist();
@@ -63,8 +63,8 @@ export async function iniciarInventario(id) {
   updateState("pedidos", pedidos);
 
   await logAction(
-    "inicio_inventario",
-    `Pedido ${p.factura}: inició inventario`,
+    "Inicio de inventario",
+    `Pedido ${p.factura}: Inició inventario`,
   );
   await persist();
   render();
@@ -88,7 +88,10 @@ export async function finalizarInventario(id) {
   const pedidos = state.pedidos.map((ped) => (ped.id === id ? p : ped));
   updateState("pedidos", pedidos);
 
-  await logAction("fin_inventario", `Pedido ${p.factura}: finalizó inventario`);
+  await logAction(
+    "Finalización de inventario",
+    `Pedido ${p.factura}: finalizó inventario`,
+  );
   await persist();
   render();
 }
@@ -111,7 +114,7 @@ export async function iniciarRecibo(id) {
   const pedidos = state.pedidos.map((ped) => (ped.id === id ? p : ped));
   updateState("pedidos", pedidos);
 
-  await logAction("inicio_recibo", `Pedido ${p.factura}: inició recibo`);
+  await logAction("Inicio de recibo", `Pedido ${p.factura}: inició recibo`);
   await persist();
   render();
 
@@ -134,7 +137,10 @@ export async function finalizarRecibo(id) {
   const pedidos = state.pedidos.map((ped) => (ped.id === id ? p : ped));
   updateState("pedidos", pedidos);
 
-  await logAction("fin_recibo", `Pedido ${p.factura}: finalizó recibo`);
+  await logAction(
+    "Finalización de recibo",
+    `Pedido ${p.factura}: finalizó recibo`,
+  );
   await persist();
   render();
   alert(`Pedido ${p.factura} finalizado.`);

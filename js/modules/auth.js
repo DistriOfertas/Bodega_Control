@@ -35,7 +35,7 @@ export async function login() {
   state.role = role;
 
   document.getElementById("loginPin").value = "";
-  await logAction("login", "Ingreso al sistema");
+  await logAction("Login", "Ingreso al sistema");
 
   // Guardar en localStorage y Firebase (solo datos)
   await persist();
@@ -61,7 +61,7 @@ export async function logout() {
   console.log("🚪 Cerrando sesión para:", state.currentUser.nombre);
 
   cleanupInactivityMonitor();
-  await logAction("logout", "Cierre de sesión");
+  await logAction("Logout", "Cierre de sesión");
 
   // Limpiar sesión localmente
   state.currentUser = null;

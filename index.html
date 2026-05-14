@@ -202,9 +202,6 @@
       <section id="view-personal" class="hidden">
         <div class="card">
           <h2>Personal</h2>
-          <p class="muted small">
-            Solo Elmer y Paola pueden crear o eliminar personal.
-          </p>
           <div class="grid grid-2" style="margin-top: 10px">
             <div>
               <label>Nombre</label>
@@ -276,12 +273,20 @@
         </div>
       </section>
 
-      <section id="view-trazabilidad" class="hidden">
-        <div class="card">
-          <h2>Trazabilidad</h2>
-          <p class="muted small">Registro de quién hizo cada acción.</p>
-          <div id="listaTrazabilidad"></div>
+      <section id="view-trazabilidad" class="view hidden">
+        <h2 class="title2">📜 Trazabilidad</h2>
+
+        <!-- CAMPO DE BÚSQUEDA -->
+        <div class="search-box">
+          <input
+            type="text"
+            id="searchTrazabilidad"
+            placeholder="Buscar por tipo, usuario, detalle o rol..."
+            onkeyup="window.handleTrazabilidadSearch(event)"
+          />
         </div>
+
+        <div id="listaTrazabilidad"></div>
       </section>
     </div>
 

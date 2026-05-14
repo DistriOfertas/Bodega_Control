@@ -52,7 +52,10 @@ export async function crearPedido() {
   const pedidos = [nuevoPedido, ...state.pedidos];
   updateState("pedidos", pedidos);
 
-  await logAction("crear_pedido", `Pedido ${factura} creado para ${proveedor}`);
+  await logAction(
+    "Creación de pedido",
+    `Pedido ${factura} creado para ${proveedor}`,
+  );
   limpiarFormularioPedido();
   await persist();
   render();
@@ -131,7 +134,7 @@ export async function editarPersonas(id) {
   updateState("pedidos", pedidos);
 
   await logAction(
-    "editar_descarga",
+    "Edición de personal de descarga",
     `Pedido ${p.factura}: personas descarga ${p.personasDescarga}`,
   );
   await persist();
