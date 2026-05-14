@@ -1,7 +1,7 @@
 import { logout } from "../modules/auth.js";
 
 let inactivityTimer = null;
-const INACTIVITY_LIMIT = 30 * 1000; // 30 segundos (ajusta según necesites)
+const INACTIVITY_LIMIT = 60 * 30 * 1000; // 30 minutos (ajusta según necesites)
 
 export function initInactivityMonitor() {
   // Resetear timer cuando hay actividad
@@ -27,9 +27,7 @@ export function initInactivityMonitor() {
   // Iniciar el timer
   resetInactivityTimer();
 
-  console.log(
-    "✅ Monitor de inactividad iniciado (30 segundos) - Modo directo",
-  );
+  console.log("✅ Monitor de inactividad iniciado (30 minutos) - Modo directo");
 }
 
 function resetInactivityTimer() {
