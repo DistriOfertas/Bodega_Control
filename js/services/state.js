@@ -4,12 +4,24 @@ import { DEFAULT_USERS } from "../utils/constants.js";
 let state = {
   role: "Sin sesión",
   currentUser: null,
+  deviceId: null,
   pedidos: [],
   almuerzos: [],
   personal: [],
   trazabilidad: [],
   users: { ...DEFAULT_USERS },
 };
+
+// Función para obtener deviceId
+export function getDeviceId() {
+  let deviceId = localStorage.getItem("device_id");
+  if (!deviceId) {
+    deviceId =
+      "device_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem("device_id", deviceId);
+  }
+  return deviceId;
+}
 
 // Getters
 export function getState() {
@@ -28,28 +40,45 @@ export function updateState(key, value) {
   asegurarState();
 }
 
-// Función de seguridad
+// Función de seguridad - CORREGIDA
 export function asegurarState() {
+  // Verificar que state existe
+  if (!state) {
+    state = {
+      role: "Sin sesión",
+      currentUser: null,
+      deviceId: null,
+      pedidos: [],
+      almuerzos: [],
+      personal: [],
+      trazabilidad: [],
+      users: { ...DEFAULT_USERS },
+    };
+  }
+
+  // Asegurar cada propiedad
   if (!state.pedidos) state.pedidos = [];
   if (!state.almuerzos) state.almuerzos = [];
   if (!state.personal) state.personal = [];
   if (!state.trazabilidad) state.trazabilidad = [];
-  if (!state.users) state.users = {};
+  if (!state.users) state.users = { ...DEFAULT_USERS };
   if (!state.role) state.role = "Sin sesión";
   if (!state.currentUser) state.currentUser = null;
+  if (!state.deviceId) state.deviceId = null;
 }
 
 // Verificaciones de permisos
 export function isAdmin() {
-  const state = getState();
-  return !!state.currentUser && state.currentUser.role === "admin";
+  return !!(state.currentUser && state.currentUser.role === "admin");
 }
 
 export function canOperate() {
-  const state = getState();
-  return (
-    !!state.currentUser &&
+  return !!(
+    state.currentUser &&
     (state.currentUser.role === "admin" ||
       state.currentUser.role === "coordinador")
   );
 }
+
+// Inicializar asegurarState al cargar
+asegurarState();

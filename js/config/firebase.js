@@ -6,9 +6,9 @@ import {
   get,
   onValue,
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
-import { DEFAULT_USERS, STORAGE_KEY } from "../utils/constants.js"; // ← IMPORTAR CONSTANTES
-import { getState, setState, asegurarState } from "../services/state.js"; // ← IMPORTAR STATE
-import { render } from "../ui/render.js"; // ← IMPORTAR RENDER
+import { DEFAULT_USERS, STORAGE_KEY } from "../utils/constants.js";
+import { getState, asegurarState } from "../services/state.js";
+import { render } from "../ui/render.js";
 
 export const FIREBASE_CONFIG = {
   apiKey: "AIzaSyD-X-B73dJJ0lmw_zakg-MWL_E6jgWQbv4",
@@ -43,27 +43,17 @@ export async function initFirebase() {
     firebaseReady = true;
     const rootRef = ref(db, "bodegaControl");
 
-    // Primero, obtener datos actuales
     const snapshot = await get(rootRef);
-    const state = getState(); // ← OBTENER STATE ACTUAL
+    const state = getState();
 
     if (snapshot.exists()) {
       const data = snapshot.val();
 
-      // IMPORTANTE: Combinar usuarios existentes con los defaults
+      // Combinar usuarios
       const existingUsers = data.users || {};
       const mergedUsers = { ...DEFAULT_USERS, ...existingUsers };
 
-      //console.log("Usuarios en Firebase:", Object.keys(existingUsers));
-      //console.log("Usuarios combinados:", Object.keys(mergedUsers));
-
-      // Si falta mateo, mostramos advertencia
-      if (!existingUsers.mateo) {
-        console.warn(
-          "⚠️ Mateo no está en Firebase, se agregará automáticamente",
-        );
-      }
-
+      // Cargar datos desde Firebase
       state.pedidos = Array.isArray(data.pedidos) ? data.pedidos : [];
       state.almuerzos = Array.isArray(data.almuerzos) ? data.almuerzos : [];
       state.personal = Array.isArray(data.personal) ? data.personal : [];
@@ -71,59 +61,57 @@ export async function initFirebase() {
         ? data.trazabilidad
         : [];
       state.users = mergedUsers;
-      state.currentUser = data.currentUser || null;
-      state.role = data.role || "Sin sesión";
 
-      // Actualizar Firebase con los usuarios combinados
-      await set(rootRef, {
-        pedidos: state.pedidos,
-        almuerzos: state.almuerzos,
-        personal: state.personal,
-        trazabilidad: state.trazabilidad,
-        users: mergedUsers,
-        currentUser: state.currentUser,
-        role: state.role,
-      });
+      // Restaurar sesión desde localStorage (NO desde Firebase)
+      const localData = localStorage.getItem(STORAGE_KEY);
+      if (localData) {
+        try {
+          const parsed = JSON.parse(localData);
+          state.currentUser = parsed.currentUser || null;
+          state.role = parsed.role || "Sin sesión";
+          console.log("✅ Sesión restaurada desde localStorage");
+        } catch (e) {
+          state.currentUser = null;
+          state.role = "Sin sesión";
+        }
+      } else {
+        state.currentUser = null;
+        state.role = "Sin sesión";
+      }
 
       console.log(
-        "✅ Firebase actualizado con usuarios:",
-        Object.keys(mergedUsers),
+        `📦 Datos cargados: ${state.pedidos.length} pedidos, ${state.personal.length} empleados`,
       );
     } else {
-      // Si no hay datos, crear con todos los usuarios por defecto
+      // Crear estructura inicial
       await set(rootRef, {
         pedidos: [],
         almuerzos: [],
         personal: [],
         trazabilidad: [],
         users: DEFAULT_USERS,
-        currentUser: null,
-        role: "Sin sesión",
       });
       state.users = { ...DEFAULT_USERS };
-      console.log(
-        "✅ Firebase inicializado con todos los usuarios por defecto",
-      );
+      state.currentUser = null;
+      state.role = "Sin sesión";
+      console.log("✅ Firebase inicializado");
     }
 
     asegurarState();
-
-    // Guardar en localStorage
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 
-    // Configurar listener para cambios en tiempo real
+    // Escuchar cambios en Firebase y sincronizar SOLO datos
     onValue(rootRef, (snapshot) => {
       if (syncingFromCloud) return;
 
       const data = snapshot.val();
       if (!data) return;
 
-      //console.log("Firebase sync recibido");
+      console.log("🔄 Sincronizando datos desde Firebase");
       syncingFromCloud = true;
-
       const currentState = getState();
 
-      // Al recibir actualizaciones, combinar usuarios
+      // Sincronizar SOLO datos, NO la sesión
       const remoteUsers = data.users || {};
       const mergedRemoteUsers = { ...DEFAULT_USERS, ...remoteUsers };
 
@@ -137,10 +125,13 @@ export async function initFirebase() {
         : [];
       currentState.users = mergedRemoteUsers;
 
-      if (!currentState.currentUser) {
-        currentState.currentUser = data.currentUser || null;
-        currentState.role = data.role || "Sin sesión";
-      }
+      // Conservar la sesión actual (NO se sobrescribe)
+      console.log(
+        `📦 Datos sincronizados: ${currentState.pedidos.length} pedidos`,
+      );
+
+      // Guardar en localStorage
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(currentState));
 
       asegurarState();
       syncingFromCloud = false;
@@ -163,55 +154,36 @@ export async function migrarUsuariosAFirebase() {
   try {
     const rootRef = ref(db, "bodegaControl");
     const snapshot = await get(rootRef);
+    const state = getState();
 
     if (snapshot.exists()) {
       const data = snapshot.val();
-
-      // Combinar usuarios existentes con DEFAULT_USERS
       const existingUsers = data.users || {};
       const mergedUsers = { ...DEFAULT_USERS, ...existingUsers };
 
-      //console.log("🔄 Migrando usuarios a Firebase:", Object.keys(mergedUsers));
-
-      // Verificar específicamente a mateo
-      if (!existingUsers.mateo) {
-        console.log("➕ Agregando usuario mateo a Firebase");
-      }
-
-      // Actualizar Firebase con todos los usuarios
       await set(rootRef, {
-        pedidos: data.pedidos || [],
-        almuerzos: data.almuerzos || [],
-        personal: data.personal || [],
-        trazabilidad: data.trazabilidad || [],
+        pedidos: state.pedidos || [],
+        almuerzos: state.almuerzos || [],
+        personal: state.personal || [],
+        trazabilidad: state.trazabilidad || [],
         users: mergedUsers,
-        currentUser: data.currentUser || null,
-        role: data.role || "Sin sesión",
       });
 
-      // Actualizar estado local
-      const state = getState();
-      state.users = mergedUsers;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-
-      console.log("✅ Usuarios migrados exitosamente a Firebase");
+      console.log("✅ Datos migrados a Firebase");
       return true;
     } else {
-      // Si no hay datos, crear desde cero
       await set(rootRef, {
-        pedidos: [],
-        almuerzos: [],
-        personal: [],
-        trazabilidad: [],
+        pedidos: state.pedidos || [],
+        almuerzos: state.almuerzos || [],
+        personal: state.personal || [],
+        trazabilidad: state.trazabilidad || [],
         users: DEFAULT_USERS,
-        currentUser: null,
-        role: "Sin sesión",
       });
-      console.log("✅ Firebase inicializado con todos los usuarios");
+      console.log("✅ Firebase inicializado");
       return true;
     }
   } catch (error) {
-    console.error("❌ Error migrando usuarios:", error);
+    console.error("❌ Error:", error);
     return false;
   }
 }

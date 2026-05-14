@@ -1,21 +1,15 @@
-import { getState, updateState } from "../services/state.js";
+import { getState } from "../services/state.js";
 import { logAction } from "../services/logger.js";
 import { persist } from "../services/storage.js";
 import { render, mostrarVista } from "../ui/render.js";
 import { applyRoleVisibility, initTabs } from "../ui/tabs.js";
 import { cleanupInactivityMonitor } from "../services/inactivity.js";
-import { STORAGE_KEY } from "../utils/constants.js"; // ← AÑADIR ESTA IMPORTACIÓN
+import { STORAGE_KEY } from "../utils/constants.js";
 
 export async function login() {
   const username = document.getElementById("loginUser").value;
   const pin = document.getElementById("loginPin").value;
   const state = getState();
-
-  console.log("=== DEPURACIÓN LOGIN ===");
-  console.log("Username ingresado:", username);
-  console.log("PIN ingresado:", pin);
-  console.log("Todos los usuarios:", state.users);
-  console.log("Usuario encontrado:", state.users[username]);
 
   const user = state.users[username];
 
@@ -32,11 +26,16 @@ export async function login() {
 
   const role = user.role === "admin" ? "Administrador" : "Coordinador";
 
-  updateState("currentUser", currentUser);
-  updateState("role", role);
+  // Actualizar estado
+  state.currentUser = currentUser;
+  state.role = role;
 
   document.getElementById("loginPin").value = "";
   await logAction("login", "Ingreso al sistema");
+
+  // Guardar en localStorage y Firebase (solo datos)
+  await persist();
+
   applyRoleVisibility();
   initTabs();
   render();
@@ -52,38 +51,21 @@ export async function logout() {
   const state = getState();
   if (!state.currentUser) return;
 
-  console.log("Cerrando sesión para:", state.currentUser.nombre); // Depuración
+  console.log("🚪 Cerrando sesión para:", state.currentUser.nombre);
 
-  // Limpiar monitor de inactividad
   cleanupInactivityMonitor();
-
   await logAction("logout", "Cierre de sesión");
 
-  // Actualizar estado localmente
+  // Limpiar sesión localmente
   state.currentUser = null;
   state.role = "Sin sesión";
 
-  // Actualizar usando updateState (pero evitando que persista a Firebase)
-  updateState("currentUser", null);
-  updateState("role", "Sin sesión");
+  // Guardar estado SIN sesión
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 
-  // Guardar SOLO en localStorage
-  const localState = getState();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(localState));
-
-  console.log(
-    "Estado guardado en localStorage. CurrentUser:",
-    localState.currentUser,
-  ); // Depuración
-
-  // Asegurar que la UI se actualice
+  // Los datos ya están en Firebase, no los borramos
+  // Solo actualizamos la UI
   applyRoleVisibility();
   render();
   mostrarVista("login");
-
-  // Forzar recarga visual si es necesario
-  setTimeout(() => {
-    const loginView = document.getElementById("view-login");
-    if (loginView) loginView.classList.remove("hidden");
-  }, 100);
 }
