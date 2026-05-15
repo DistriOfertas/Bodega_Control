@@ -53,7 +53,7 @@ export async function crearPedido() {
   updateState("pedidos", pedidos);
 
   await logAction(
-    "Creación de pedido",
+    "CREACIÓN DE PEDIDO",
     `Pedido ${factura} creado para ${proveedor}`,
   );
   limpiarFormularioPedido();
@@ -89,6 +89,11 @@ export async function reprogramarPedido(id) {
   const motivo = prompt("Motivo de reprogramación:", "Proveedor no llegó");
   if (!motivo) return;
 
+  // ========== CORRECCIÓN: Asegurar que reprogramaciones existe ==========
+  if (!pedido.reprogramaciones) {
+    pedido.reprogramaciones = [];
+  }
+
   pedido.reprogramaciones.unshift({
     fechaAnterior: pedido.fechaProgramada,
     horaAnterior: pedido.horaProgramada,
@@ -106,13 +111,15 @@ export async function reprogramarPedido(id) {
   updateState("pedidos", pedidos);
 
   await logAction(
-    "reprogramar_pedido",
+    "PEDIDO REPROGRAMADO",
     `Pedido ${pedido.factura} reprogramado`,
   );
   await persist();
   render();
 
   notifyPedidoReprogramado(pedido, state.currentUser?.nombre);
+
+  alert(`✅ Pedido reprogramado para el ${fechaNueva} a las ${horaNueva}`);
 }
 
 export async function editarPersonas(id) {
@@ -134,7 +141,7 @@ export async function editarPersonas(id) {
   updateState("pedidos", pedidos);
 
   await logAction(
-    "Edición de personal de descarga",
+    "EDICIÓN DE PERSONAL DE DESCARGA",
     `Pedido ${p.factura}: personas descarga ${p.personasDescarga}`,
   );
   await persist();
@@ -191,7 +198,7 @@ export async function corregirPedido(id, campo) {
   updateState("pedidos", pedidos);
 
   await logAction(
-    "correccion_manual",
+    "CORRECCIÓN MANUAL",
     `Pedido ${p.factura}: ${etiquetas[campo] || campo} cambiado`,
   );
   await persist();

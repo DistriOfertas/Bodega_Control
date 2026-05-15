@@ -2,10 +2,14 @@ import { login, logout } from "../modules/auth.js";
 import { crearPedido, cargarDemo, borrarTodo } from "../modules/pedidos.js";
 import { guardarEmpleado } from "../modules/personal.js";
 import { registrarSalidaAlmuerzo } from "../modules/almuerzos.js";
-import { generarReporte } from "../modules/reportes.js";
 import { getState } from "../services/state.js";
 import { isAdmin } from "../services/state.js";
 import { render } from "./render.js";
+import {
+  generarReporte,
+  exportarReporteDiarioExcel,
+  exportarTodosPedidosExcel,
+} from "../modules/reportes.js";
 
 export function bindEvents() {
   // Login/Logout
@@ -35,17 +39,29 @@ export function bindEvents() {
   if (btnGuardarPersonal)
     btnGuardarPersonal.addEventListener("click", guardarEmpleado);
 
-  // Reportes
-  const btnGenerarReporte = document.getElementById("btnGenerarReporte");
-  if (btnGenerarReporte)
-    btnGenerarReporte.addEventListener("click", generarReporte);
-
   // Enter en login
   const loginPin = document.getElementById("loginPin");
   if (loginPin) {
     loginPin.addEventListener("keydown", (e) => {
       if (e.key === "Enter") login();
     });
+  }
+
+  // Exportar Excel
+  const btnGenerarReporte = document.getElementById("btnGenerarReporte");
+  if (btnGenerarReporte) {
+    btnGenerarReporte.addEventListener("click", generarReporte);
+  }
+
+  // Botones de exportación (agrega estos botones en tu HTML)
+  const btnExportarDiario = document.getElementById("btnExportarDiario");
+  if (btnExportarDiario) {
+    btnExportarDiario.addEventListener("click", exportarReporteDiarioExcel);
+  }
+
+  const btnExportarTodos = document.getElementById("btnExportarTodos");
+  if (btnExportarTodos) {
+    btnExportarTodos.addEventListener("click", exportarTodosPedidosExcel);
   }
 
   // Actualizar botones según permisos

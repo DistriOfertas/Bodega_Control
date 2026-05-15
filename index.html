@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="css/styles.css" />
     <link rel="icon" href="assets/logo.png" type="image/png" />
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <title>Bodega Control</title>
   </head>
 
@@ -261,6 +262,21 @@
               <div class="muted small">Recibo promedio</div>
               <div class="value" id="repRecProm">0</div>
             </div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>📎 Exportar datos</h2>
+          <div class="grid grid-2" style="margin-top: 10px">
+            <button
+              id="btnExportarDiario"
+              class="btn-success"
+              style="background-color: #28a745"
+            >
+              📊 Exportar reporte del día
+            </button>
+            <button id="btnExportarTodos" class="btn-primary">
+              📦 Exportar todos los pedidos
+            </button>
           </div>
         </div>
         <div class="card">

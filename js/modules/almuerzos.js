@@ -25,7 +25,7 @@ export async function registrarSalidaAlmuerzo() {
   updateState("almuerzos", almuerzos);
 
   document.getElementById("almuerzoEmpleado").value = "";
-  await logAction("Salida de almuerzo", `${emp.nombre} salió a almuerzo`);
+  await logAction("SALIDA DE ALMUERZO", `${emp.nombre} salió a almuerzo`);
   await persist();
   render();
 }
@@ -42,7 +42,7 @@ export async function registrarRegresoAlmuerzo(id) {
   updateState("almuerzos", almuerzos);
 
   await logAction(
-    "Regreso de almuerzo",
+    "REGRESO DE ALMUERZO",
     `${almuerzo.nombre} regresó de almuerzo`,
   );
   await persist();

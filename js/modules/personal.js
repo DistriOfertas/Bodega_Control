@@ -25,7 +25,7 @@ export async function guardarEmpleado() {
   document.getElementById("personalNombre").value = "";
   document.getElementById("personalCargo").value = "";
 
-  await logAction("crear_empleado", `Empleado creado: ${nombre}`);
+  await logAction("CREACIÓN DE EMPLEADO", `Empleado creado: ${nombre}`);
   await persist();
   render();
   alert("Empleado guardado correctamente.");
@@ -48,7 +48,7 @@ export async function eliminarEmpleado(id) {
   updateState("pedidos", pedidos);
 
   await logAction(
-    "eliminar_empleado",
+    "ELIMINACIÓN DE EMPLEADO",
     `Empleado eliminado: ${empleado ? empleado.nombre : id}`,
   );
   await persist();

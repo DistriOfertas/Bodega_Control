@@ -6,6 +6,10 @@ import { applyRoleVisibility, initTabs } from "./ui/tabs.js";
 import { getState } from "./services/state.js";
 import { requestNotificationPermission } from "./services/notifications.js";
 import { setTrazabilidadSearch } from "./ui/render.js";
+import {
+  exportarReporteDiarioExcel,
+  exportarTodosPedidosExcel,
+} from "./modules/reportes.js";
 
 // Importar funciones globales necesarias
 import { eliminarEmpleado } from "./modules/personal.js";
@@ -37,6 +41,8 @@ window.finalizarRecibo = finalizarRecibo;
 window.registrarRegresoAlmuerzo = registrarRegresoAlmuerzo;
 window.borrarTodo = borrarTodo;
 window.setTrazabilidadSearch = setTrazabilidadSearch;
+window.exportarReporteDiarioExcel = exportarReporteDiarioExcel;
+window.exportarTodosPedidosExcel = exportarTodosPedidosExcel;
 
 // ========== LISTENER PARA CAMBIO DE VISTA DESDE NOTIFICACIONES ==========
 document.addEventListener("changeView", (e) => {
