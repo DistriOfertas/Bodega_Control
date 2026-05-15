@@ -7,13 +7,14 @@ import {
 } from "../utils/helpers.js";
 import { llenarSelects } from "./events.js";
 
-let currentTrazabilidadSearch = "";
-let filtroBuscar = "";
-let filtroEstado = "todos";
-let filtroBodeguero = "todos";
+// Variables para gráficos
+let chartsInitialized = false;
+let pedidosChart = null;
+let personalChart = null;
+let tendenciasChart = null;
 
 // Función principal de renderizado
-export function render() {
+function render() {
   const state = getState();
 
   const roleBadge = document.getElementById("roleBadge");
@@ -27,7 +28,6 @@ export function render() {
   }
 
   llenarSelects();
-  cargarBodeguerosEnFiltro();
   renderPedidos();
   renderOperacion();
   renderDashboard();
@@ -35,8 +35,285 @@ export function render() {
   renderAlmuerzos();
   renderPersonal();
   renderTrazabilidad();
+
+  // Actualizar gráficos si ya están inicializados
+  if (chartsInitialized) {
+    updateChartsData();
+  }
 }
 
+// Inicializar gráficos (llamar una sola vez)
+function initCharts() {
+  if (chartsInitialized) return;
+
+  console.log("🎨 Inicializando gráficos...");
+
+  // Destruir gráficos existentes si los hay
+  destroyCharts();
+
+  // Crear nuevo gráfico de pedidos
+  const ctxPedidos = document.getElementById("chartPedidosEstado");
+  if (ctxPedidos) {
+    pedidosChart = new Chart(ctxPedidos, {
+      type: "doughnut",
+      data: {
+        labels: [
+          "Programado",
+          "Reprogramado",
+          "Inventario",
+          "Recibo",
+          "Finalizado",
+        ],
+        datasets: [
+          {
+            data: [0, 0, 0, 0, 0],
+            backgroundColor: [
+              "#ffc107",
+              "#fd7e14",
+              "#17a2b8",
+              "#007bff",
+              "#28a745",
+            ],
+            borderWidth: 0,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { position: "bottom" } },
+      },
+    });
+  }
+
+  // Crear nuevo gráfico de personal
+  const ctxPersonal = document.getElementById("chartPersonalEstado");
+  if (ctxPersonal) {
+    personalChart = new Chart(ctxPersonal, {
+      type: "pie",
+      data: {
+        labels: ["Disponible", "Almuerzo", "Inventario", "Recibo"],
+        datasets: [
+          {
+            data: [0, 0, 0, 0],
+            backgroundColor: ["#28a745", "#ffc107", "#17a2b8", "#007bff"],
+            borderWidth: 0,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { position: "bottom" } },
+      },
+    });
+  }
+
+  // Crear nuevo gráfico de tendencias
+  const ctxTendencias = document.getElementById("chartTendencias");
+  if (ctxTendencias) {
+    tendenciasChart = new Chart(ctxTendencias, {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: "Pedidos creados",
+            data: [],
+            borderColor: "#007bff",
+            backgroundColor: "rgba(0, 123, 255, 0.1)",
+            fill: true,
+            tension: 0.4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: { legend: { position: "top" } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+      },
+    });
+  }
+
+  chartsInitialized = true;
+  updateChartsData();
+  console.log("✅ Gráficos inicializados correctamente");
+}
+
+// Destruir gráficos
+function destroyCharts() {
+  if (pedidosChart) {
+    pedidosChart.destroy();
+    pedidosChart = null;
+  }
+  if (personalChart) {
+    personalChart.destroy();
+    personalChart = null;
+  }
+  if (tendenciasChart) {
+    tendenciasChart.destroy();
+    tendenciasChart = null;
+  }
+}
+
+// Actualizar datos de los gráficos
+function updateChartsData() {
+  const state = getState();
+  const pedidos = state.pedidos || [];
+  const personal = state.personal || [];
+
+  // Actualizar gráfico de pedidos
+  if (pedidosChart) {
+    const estados = [
+      "programado",
+      "reprogramado",
+      "inventario",
+      "recibo",
+      "finalizado",
+    ];
+    const conteos = estados.map(
+      (e) => pedidos.filter((p) => p.estado === e).length,
+    );
+    pedidosChart.data.datasets[0].data = conteos;
+    pedidosChart.update();
+  }
+
+  // Actualizar gráfico de personal
+  if (personalChart) {
+    let disponibles = 0,
+      almuerzo = 0,
+      inventario = 0,
+      recibo = 0;
+
+    personal.forEach((emp) => {
+      const enAlmuerzo = state.almuerzos.some(
+        (a) => a.empleadoId === emp.id && !a.regreso,
+      );
+      const enInventario = pedidos.some(
+        (p) =>
+          p.bodegueroId === emp.id && p.inventarioInicio && !p.inventarioFin,
+      );
+      const enRecibo = pedidos.some(
+        (p) => p.bodegueroId === emp.id && p.reciboInicio && !p.reciboFin,
+      );
+
+      if (enAlmuerzo) almuerzo++;
+      else if (enInventario) inventario++;
+      else if (enRecibo) recibo++;
+      else disponibles++;
+    });
+
+    personalChart.data.datasets[0].data = [
+      disponibles,
+      almuerzo,
+      inventario,
+      recibo,
+    ];
+    personalChart.update();
+  }
+
+  // Actualizar gráfico de tendencias
+  if (tendenciasChart) {
+    const labels = [];
+    const datos = [];
+
+    for (let i = 6; i >= 0; i--) {
+      const fecha = new Date();
+      fecha.setDate(fecha.getDate() - i);
+      const fechaStr = fecha.toISOString().slice(0, 10);
+      labels.push(fechaStr.slice(5, 10));
+
+      const pedidosDia = pedidos.filter(
+        (p) => p.createdAt && p.createdAt.slice(0, 10) === fechaStr,
+      );
+      datos.push(pedidosDia.length);
+    }
+
+    tendenciasChart.data.labels = labels;
+    tendenciasChart.data.datasets[0].data = datos;
+    tendenciasChart.update();
+  }
+}
+
+// Función para forzar actualización de gráficos (llamar después de cambios)
+function refreshCharts() {
+  if (chartsInitialized) {
+    updateChartsData();
+  }
+}
+
+export function renderDashboard() {
+  const state = getState();
+  const pedidos = state.pedidos;
+  const activos = pedidos.filter((p) => p.estado !== "finalizado").length;
+  const reprog = pedidos.filter(
+    (p) => p.reprogramaciones && p.reprogramaciones.length > 0,
+  ).length;
+
+  const invProm = calcularTiempoPromedio(pedidos, "inventario");
+  const recProm = calcularTiempoPromedio(pedidos, "recibo");
+
+  document.getElementById("kpiActivos").textContent = activos;
+  document.getElementById("kpiReprog").textContent = reprog;
+  document.getElementById("kpiInv").textContent = invProm;
+  document.getElementById("kpiRec").textContent = recProm;
+
+  const resumen = { disponibles: 0, almuerzo: 0, inventario: 0, recibo: 0 };
+  state.personal.forEach((emp) => {
+    const est = estadoEmpleado(emp);
+    if (est.clase === "almuerzo") resumen.almuerzo++;
+    else if (est.clase === "inventario") resumen.inventario++;
+    else if (est.clase === "recibo") resumen.recibo++;
+    else resumen.disponibles++;
+  });
+
+  document.getElementById("kpiDisponibles").textContent = resumen.disponibles;
+  document.getElementById("kpiAlmuerzo").textContent = resumen.almuerzo;
+  document.getElementById("kpiInventarioPersonal").textContent =
+    resumen.inventario;
+  document.getElementById("kpiReciboPersonal").textContent = resumen.recibo;
+
+  const alerts = [];
+  pedidos.forEach((p) => {
+    if (
+      p.personasDescarga !== null &&
+      p.personasDescarga < 2 &&
+      p.estado !== "finalizado"
+    ) {
+      alerts.push(
+        `Pedido ${p.factura} tiene pocas personas (${p.personasDescarga})`,
+      );
+    }
+  });
+  document.getElementById("listaAlertas").innerHTML = alerts.length
+    ? alerts.map((a) => `<div class="alert">${a}</div>`).join("")
+    : '<div class="empty">Sin alertas</div>';
+}
+
+function calcularTiempoPromedio(pedidos, tipo) {
+  let suma = 0;
+  let count = 0;
+
+  pedidos.forEach((p) => {
+    if (p.estado === "finalizado") {
+      let tiempo = null;
+      if (tipo === "inventario") {
+        tiempo = diffMinutes(p.inventarioInicio, p.inventarioFin);
+      } else {
+        tiempo = diffMinutes(p.reciboInicio, p.reciboFin);
+      }
+      if (tiempo && tiempo > 0) {
+        suma += tiempo;
+        count++;
+      }
+    }
+  });
+
+  return count > 0 ? Math.round(suma / count) : 0;
+}
+
+// El resto de tus funciones (renderPedidos, renderOperacion, etc.) permanecen igual...
 export function renderPedidos() {
   const box = document.getElementById("listaPedidos");
   if (!box) return;
@@ -47,12 +324,13 @@ export function renderPedidos() {
     return;
   }
 
-  let pedidosFiltrados = [...state.pedidos];
+  // Aplicar filtros - USAR UNA SOLA VARIABLE
+  let pedidosMostrados = [...state.pedidos];
 
   // Filtro por búsqueda (proveedor, factura, comprador)
-  if (filtroBuscar.trim() !== "") {
+  if (filtroBuscar && filtroBuscar.trim() !== "") {
     const busqueda = filtroBuscar.toLowerCase().trim();
-    pedidosFiltrados = pedidosFiltrados.filter(
+    pedidosMostrados = pedidosMostrados.filter(
       (p) =>
         (p.proveedor && p.proveedor.toLowerCase().includes(busqueda)) ||
         (p.factura && p.factura.toLowerCase().includes(busqueda)) ||
@@ -61,26 +339,26 @@ export function renderPedidos() {
   }
 
   // Filtro por estado
-  if (filtroEstado !== "todos") {
-    pedidosFiltrados = pedidosFiltrados.filter(
+  if (filtroEstado && filtroEstado !== "todos") {
+    pedidosMostrados = pedidosMostrados.filter(
       (p) => p.estado === filtroEstado,
     );
   }
 
   // Filtro por bodeguero
-  if (filtroBodeguero !== "todos") {
-    pedidosFiltrados = pedidosFiltrados.filter(
+  if (filtroBodeguero && filtroBodeguero !== "todos") {
+    pedidosMostrados = pedidosMostrados.filter(
       (p) => p.bodegueroId === filtroBodeguero,
     );
   }
 
-  if (pedidosFiltrados.length === 0) {
+  if (pedidosMostrados.length === 0) {
     box.innerHTML =
       '<div class="empty">No hay pedidos que coincidan con los filtros.</div>';
     return;
   }
 
-  box.innerHTML = state.pedidos
+  box.innerHTML = pedidosMostrados
     .map((p) => {
       const noReprogramar = p.estado === "finalizado" || !!p.reciboFin;
       return `<div class="order">
@@ -107,7 +385,61 @@ export function renderPedidos() {
     .join("");
 }
 
-// Añadir estas funciones al archivo render.js existente
+// Función para actualizar gráficos cuando se cambia de vista
+function mostrarVista(nombre) {
+  const state = getState();
+  if (!state.currentUser) {
+    const loginView = document.getElementById("view-login");
+    if (loginView) loginView.classList.remove("hidden");
+    return;
+  }
+
+  const allowed =
+    state.currentUser.role === "admin"
+      ? [
+          "pedidos",
+          "operacion",
+          "dashboard",
+          "historial",
+          "almuerzo",
+          "personal",
+          "reporte",
+          "trazabilidad",
+        ]
+      : ["operacion", "dashboard", "historial", "almuerzo", "reporte"];
+
+  if (!allowed.includes(nombre)) return;
+
+  const views = [
+    "pedidos",
+    "operacion",
+    "dashboard",
+    "historial",
+    "almuerzo",
+    "personal",
+    "reporte",
+    "trazabilidad",
+  ];
+  views.forEach((v) => {
+    const el = document.getElementById(`view-${v}`);
+    if (el) el.classList.toggle("hidden", v !== nombre);
+  });
+
+  document.querySelectorAll(".tab").forEach((t) => {
+    t.classList.toggle("active", t.dataset.view === nombre);
+  });
+
+  // Si es dashboard, inicializar o actualizar gráficos
+  if (nombre === "dashboard") {
+    setTimeout(() => {
+      if (!chartsInitialized) {
+        initCharts();
+      } else {
+        refreshCharts();
+      }
+    }, 200);
+  }
+}
 
 export function renderOperacion() {
   const box = document.getElementById("listaOperacion");
@@ -163,95 +495,6 @@ export function renderOperacion() {
     </div>`;
     })
     .join("");
-}
-
-// Función para actualizar filtros y refrescar la lista
-export function actualizarFiltros() {
-  const inputBuscar = document.getElementById("filtroBuscar");
-  const selectEstado = document.getElementById("filtroEstado");
-  const selectBodeguero = document.getElementById("filtroBodeguero");
-
-  if (inputBuscar) filtroBuscar = inputBuscar.value;
-  if (selectEstado) filtroEstado = selectEstado.value;
-  if (selectBodeguero) filtroBodeguero = selectBodeguero.value;
-
-  renderPedidos();
-}
-
-// Función para limpiar filtros
-export function limpiarFiltros() {
-  const inputBuscar = document.getElementById("filtroBuscar");
-  const selectEstado = document.getElementById("filtroEstado");
-  const selectBodeguero = document.getElementById("filtroBodeguero");
-
-  if (inputBuscar) inputBuscar.value = "";
-  if (selectEstado) selectEstado.value = "todos";
-  if (selectBodeguero) selectBodeguero.value = "todos";
-
-  filtroBuscar = "";
-  filtroEstado = "todos";
-  filtroBodeguero = "todos";
-
-  renderPedidos();
-}
-
-// Función para cargar bodegueros en el filtro (llamar después de cargar personal)
-export function cargarBodeguerosEnFiltro() {
-  const select = document.getElementById("filtroBodeguero");
-  if (!select) return;
-
-  const state = getState();
-  const personal = state.personal || [];
-
-  let options = '<option value="todos">Todos</option>';
-  personal.forEach((emp) => {
-    options += `<option value="${emp.id}">${emp.nombre}</option>`;
-  });
-
-  select.innerHTML = options;
-}
-
-export function renderDashboard() {
-  const state = getState();
-  const pedidos = state.pedidos;
-  const activos = pedidos.filter((p) => p.estado !== "finalizado").length;
-  const reprog = pedidos.filter(
-    (p) => p.reprogramaciones && p.reprogramaciones.length > 0,
-  ).length;
-
-  document.getElementById("kpiActivos").textContent = activos;
-  document.getElementById("kpiReprog").textContent = reprog;
-
-  const resumen = { disponibles: 0, almuerzo: 0, inventario: 0, recibo: 0 };
-  state.personal.forEach((emp) => {
-    const est = estadoEmpleado(emp);
-    if (est.clase === "almuerzo") resumen.almuerzo++;
-    else if (est.clase === "inventario") resumen.inventario++;
-    else if (est.clase === "recibo") resumen.recibo++;
-    else resumen.disponibles++;
-  });
-
-  document.getElementById("kpiDisponibles").textContent = resumen.disponibles;
-  document.getElementById("kpiAlmuerzo").textContent = resumen.almuerzo;
-  document.getElementById("kpiInventarioPersonal").textContent =
-    resumen.inventario;
-  document.getElementById("kpiReciboPersonal").textContent = resumen.recibo;
-
-  const alerts = [];
-  pedidos.forEach((p) => {
-    if (
-      p.personasDescarga !== null &&
-      p.personasDescarga < 2 &&
-      p.estado !== "finalizado"
-    ) {
-      alerts.push(
-        `Pedido ${p.factura} tiene pocas personas (${p.personasDescarga})`,
-      );
-    }
-  });
-  document.getElementById("listaAlertas").innerHTML = alerts.length
-    ? alerts.map((a) => `<div class="alert">${a}</div>`).join("")
-    : '<div class="empty">Sin alertas</div>';
 }
 
 export function renderHistorial() {
@@ -358,26 +601,7 @@ export function renderTrazabilidad() {
     return;
   }
 
-  // Aplicar filtro de búsqueda
-  let filteredLogs = [...state.trazabilidad];
-
-  if (currentTrazabilidadSearch.trim() !== "") {
-    const searchTerm = currentTrazabilidadSearch.toLowerCase().trim();
-    filteredLogs = state.trazabilidad.filter(
-      (log) =>
-        log.tipo.toLowerCase().includes(searchTerm) ||
-        log.detalle.toLowerCase().includes(searchTerm) ||
-        log.usuario.toLowerCase().includes(searchTerm) ||
-        log.rol.toLowerCase().includes(searchTerm),
-    );
-  }
-
-  if (filteredLogs.length === 0) {
-    box.innerHTML = `<div class="empty">No hay resultados para "${currentTrazabilidadSearch}"</div>`;
-    return;
-  }
-
-  box.innerHTML = filteredLogs
+  box.innerHTML = state.trazabilidad
     .map(
       (t) => `<div class="order">
     <div class="order-top">
@@ -396,54 +620,60 @@ export function renderTrazabilidad() {
     .join("");
 }
 
-// Función para actualizar la búsqueda
-export function setTrazabilidadSearch(searchTerm) {
-  currentTrazabilidadSearch = searchTerm;
-  renderTrazabilidad();
+// ========== FUNCIONES PARA FILTROS DE PEDIDOS ==========
+let filtroBuscar = "";
+let filtroEstado = "todos";
+let filtroBodeguero = "todos";
+
+function actualizarFiltros() {
+  const inputBuscar = document.getElementById("filtroBuscar");
+  const selectEstado = document.getElementById("filtroEstado");
+  const selectBodeguero = document.getElementById("filtroBodeguero");
+
+  if (inputBuscar) filtroBuscar = inputBuscar.value;
+  if (selectEstado) filtroEstado = selectEstado.value;
+  if (selectBodeguero) filtroBodeguero = selectBodeguero.value;
+
+  renderPedidos();
 }
 
-export function mostrarVista(nombre) {
+function limpiarFiltros() {
+  const inputBuscar = document.getElementById("filtroBuscar");
+  const selectEstado = document.getElementById("filtroEstado");
+  const selectBodeguero = document.getElementById("filtroBodeguero");
+
+  if (inputBuscar) inputBuscar.value = "";
+  if (selectEstado) selectEstado.value = "todos";
+  if (selectBodeguero) selectBodeguero.value = "todos";
+
+  filtroBuscar = "";
+  filtroEstado = "todos";
+  filtroBodeguero = "todos";
+
+  renderPedidos();
+}
+
+function cargarBodeguerosEnFiltro() {
+  const select = document.getElementById("filtroBodeguero");
+  if (!select) return;
+
   const state = getState();
-  if (!state.currentUser) {
-    const loginView = document.getElementById("view-login");
-    if (loginView) loginView.classList.remove("hidden");
-    return;
-  }
+  const personal = state.personal || [];
 
-  const allowed =
-    state.currentUser.role === "admin"
-      ? [
-          "pedidos",
-          "operacion",
-          "dashboard",
-          "historial",
-          "almuerzo",
-          "personal",
-          "reporte",
-          "trazabilidad",
-        ]
-      : ["operacion", "dashboard", "historial", "almuerzo", "reporte"];
-
-  if (!allowed.includes(nombre)) return;
-
-  const views = [
-    "pedidos",
-    "operacion",
-    "dashboard",
-    "historial",
-    "almuerzo",
-    "personal",
-    "reporte",
-    "trazabilidad",
-  ];
-  views.forEach((v) => {
-    const el = document.getElementById(`view-${v}`);
-    if (el) el.classList.toggle("hidden", v !== nombre);
+  let options = '<option value="todos">Todos</option>';
+  personal.forEach((emp) => {
+    options += `<option value="${emp.id}">${emp.nombre}</option>`;
   });
 
-  document.querySelectorAll(".tab").forEach((t) => {
-    t.classList.toggle("active", t.dataset.view === nombre);
-  });
+  select.innerHTML = options;
 }
-// Similar para renderOperacion, renderDashboard, etc.
-// (continuaré con las demás funciones de renderizado)
+
+export {
+  render,
+  mostrarVista,
+  initCharts,
+  refreshCharts,
+  actualizarFiltros,
+  limpiarFiltros,
+  cargarBodeguerosEnFiltro,
+};

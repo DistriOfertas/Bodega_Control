@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="css/styles.css" />
     <link rel="icon" href="assets/logo.png" type="image/png" />
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
     <title>Bodega Control</title>
   </head>
 
@@ -179,6 +180,7 @@
             </div>
           </div>
         </div>
+
         <div class="card">
           <h2>Dashboard</h2>
           <div class="kpis">
@@ -200,6 +202,56 @@
             </div>
           </div>
         </div>
+
+        <!-- ========== NUEVA SECCIÓN DE GRÁFICOS ========== -->
+        <div class="card">
+          <h2>📊 Estadísticas visuales</h2>
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+              gap: 20px;
+            "
+          >
+            <div>
+              <canvas
+                id="chartPedidosEstado"
+                style="max-height: 250px; width: 100%"
+              ></canvas>
+              <p
+                style="text-align: center; margin-top: 10px"
+                class="muted small"
+              >
+                Pedidos por estado
+              </p>
+            </div>
+            <div>
+              <canvas
+                id="chartPersonalEstado"
+                style="max-height: 250px; width: 100%"
+              ></canvas>
+              <p
+                style="text-align: center; margin-top: 10px"
+                class="muted small"
+              >
+                Personal por actividad
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>📈 Tendencias</h2>
+          <canvas
+            id="chartTendencias"
+            style="max-height: 300px; width: 100%"
+          ></canvas>
+          <p style="text-align: center; margin-top: 10px" class="muted small">
+            Pedidos creados por día (últimos 7 días)
+          </p>
+        </div>
+        <!-- ============================================= -->
+
         <div class="card">
           <h2>Alertas</h2>
           <div id="listaAlertas"></div>

@@ -1,15 +1,18 @@
 import { initFirebase, migrarUsuariosAFirebase } from "./config/firebase.js";
 import { loadLocal } from "./services/storage.js";
 import { bindEvents } from "./ui/events.js";
-import { render, mostrarVista } from "./ui/render.js";
+import {
+  render,
+  mostrarVista,
+  initCharts,
+  refreshCharts,
+  actualizarFiltros,
+  limpiarFiltros,
+  cargarBodeguerosEnFiltro,
+} from "./ui/render.js";
 import { applyRoleVisibility, initTabs } from "./ui/tabs.js";
 import { getState } from "./services/state.js";
 import { requestNotificationPermission } from "./services/notifications.js";
-import {
-  setTrazabilidadSearch,
-  actualizarFiltros,
-  limpiarFiltros,
-} from "./ui/render.js";
 import {
   exportarReporteDiarioExcel,
   exportarTodosPedidosExcel,
@@ -31,6 +34,26 @@ import {
   finalizarRecibo,
 } from "./modules/operaciones.js";
 import { registrarRegresoAlmuerzo } from "./modules/almuerzos.js";
+
+let currentTrazabilidadSearch = "";
+
+function setTrazabilidadSearch(searchTerm) {
+  currentTrazabilidadSearch = searchTerm;
+  // Aquí puedes llamar a una función que filtre la trazabilidad
+  // Por ahora, solo recargamos la vista de trazabilidad
+  const state = getState();
+  if (state.currentUser) {
+    import("./ui/render.js").then((module) => {
+      module.renderTrazabilidad();
+    });
+  }
+}
+
+// Función para manejar la búsqueda desde el HTML
+function handleTrazabilidadSearch(event) {
+  const searchTerm = event.target.value;
+  setTrazabilidadSearch(searchTerm);
+}
 
 // Exponer funciones globales
 window.eliminarEmpleado = eliminarEmpleado;
@@ -59,31 +82,23 @@ document.addEventListener("changeView", (e) => {
 
 // ========== INICIALIZACIÓN ==========
 (async function init() {
-  // Cargar datos locales primero
   loadLocal();
 
-  // Bindear eventos de UI
   bindEvents();
 
-  // Inicializar tabs
   initTabs();
 
-  // Inicializar Firebase
   await initFirebase();
 
-  // Migrar usuarios a Firebase (asegura que todos los usuarios existan)
   const migrado = await migrarUsuariosAFirebase();
   if (migrado) {
     console.log("✅ Usuarios verificados en Firebase");
   }
 
-  // Aplicar visibilidad según rol
   applyRoleVisibility();
 
-  // Renderizar UI
   render();
 
-  // Obtener estado actual
   const state = getState();
 
   // Si no hay usuario logueado, mostrar login
@@ -95,9 +110,20 @@ document.addEventListener("changeView", (e) => {
       state.currentUser.role === "coordinador" ? "operacion" : "pedidos";
     mostrarVista(vistaInicial);
 
+    setTimeout(() => {
+      initCharts();
+    }, 500);
+
     // Pedir permiso para notificaciones (solo si hay usuario)
     await requestNotificationPermission();
   }
+
+  setTimeout(() => {
+    const state = getState();
+    if (state.currentUser) {
+      initCharts();
+    }
+  }, 500);
 })();
 
 // Función para manejar la búsqueda en trazabilidad
