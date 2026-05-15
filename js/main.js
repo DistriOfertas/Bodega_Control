@@ -5,7 +5,11 @@ import { render, mostrarVista } from "./ui/render.js";
 import { applyRoleVisibility, initTabs } from "./ui/tabs.js";
 import { getState } from "./services/state.js";
 import { requestNotificationPermission } from "./services/notifications.js";
-import { setTrazabilidadSearch } from "./ui/render.js";
+import {
+  setTrazabilidadSearch,
+  actualizarFiltros,
+  limpiarFiltros,
+} from "./ui/render.js";
 import {
   exportarReporteDiarioExcel,
   exportarTodosPedidosExcel,
@@ -43,6 +47,8 @@ window.borrarTodo = borrarTodo;
 window.setTrazabilidadSearch = setTrazabilidadSearch;
 window.exportarReporteDiarioExcel = exportarReporteDiarioExcel;
 window.exportarTodosPedidosExcel = exportarTodosPedidosExcel;
+window.actualizarFiltros = actualizarFiltros;
+window.limpiarFiltros = limpiarFiltros;
 
 // ========== LISTENER PARA CAMBIO DE VISTA DESDE NOTIFICACIONES ==========
 document.addEventListener("changeView", (e) => {

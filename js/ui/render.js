@@ -8,6 +8,9 @@ import {
 import { llenarSelects } from "./events.js";
 
 let currentTrazabilidadSearch = "";
+let filtroBuscar = "";
+let filtroEstado = "todos";
+let filtroBodeguero = "todos";
 
 // Función principal de renderizado
 export function render() {
@@ -24,6 +27,7 @@ export function render() {
   }
 
   llenarSelects();
+  cargarBodeguerosEnFiltro();
   renderPedidos();
   renderOperacion();
   renderDashboard();
@@ -40,6 +44,39 @@ export function renderPedidos() {
   const state = getState();
   if (!state.pedidos || state.pedidos.length === 0) {
     box.innerHTML = '<div class="empty">Aún no hay pedidos registrados.</div>';
+    return;
+  }
+
+  let pedidosFiltrados = [...state.pedidos];
+
+  // Filtro por búsqueda (proveedor, factura, comprador)
+  if (filtroBuscar.trim() !== "") {
+    const busqueda = filtroBuscar.toLowerCase().trim();
+    pedidosFiltrados = pedidosFiltrados.filter(
+      (p) =>
+        (p.proveedor && p.proveedor.toLowerCase().includes(busqueda)) ||
+        (p.factura && p.factura.toLowerCase().includes(busqueda)) ||
+        (p.comprador && p.comprador.toLowerCase().includes(busqueda)),
+    );
+  }
+
+  // Filtro por estado
+  if (filtroEstado !== "todos") {
+    pedidosFiltrados = pedidosFiltrados.filter(
+      (p) => p.estado === filtroEstado,
+    );
+  }
+
+  // Filtro por bodeguero
+  if (filtroBodeguero !== "todos") {
+    pedidosFiltrados = pedidosFiltrados.filter(
+      (p) => p.bodegueroId === filtroBodeguero,
+    );
+  }
+
+  if (pedidosFiltrados.length === 0) {
+    box.innerHTML =
+      '<div class="empty">No hay pedidos que coincidan con los filtros.</div>';
     return;
   }
 
@@ -126,6 +163,52 @@ export function renderOperacion() {
     </div>`;
     })
     .join("");
+}
+
+// Función para actualizar filtros y refrescar la lista
+export function actualizarFiltros() {
+  const inputBuscar = document.getElementById("filtroBuscar");
+  const selectEstado = document.getElementById("filtroEstado");
+  const selectBodeguero = document.getElementById("filtroBodeguero");
+
+  if (inputBuscar) filtroBuscar = inputBuscar.value;
+  if (selectEstado) filtroEstado = selectEstado.value;
+  if (selectBodeguero) filtroBodeguero = selectBodeguero.value;
+
+  renderPedidos();
+}
+
+// Función para limpiar filtros
+export function limpiarFiltros() {
+  const inputBuscar = document.getElementById("filtroBuscar");
+  const selectEstado = document.getElementById("filtroEstado");
+  const selectBodeguero = document.getElementById("filtroBodeguero");
+
+  if (inputBuscar) inputBuscar.value = "";
+  if (selectEstado) selectEstado.value = "todos";
+  if (selectBodeguero) selectBodeguero.value = "todos";
+
+  filtroBuscar = "";
+  filtroEstado = "todos";
+  filtroBodeguero = "todos";
+
+  renderPedidos();
+}
+
+// Función para cargar bodegueros en el filtro (llamar después de cargar personal)
+export function cargarBodeguerosEnFiltro() {
+  const select = document.getElementById("filtroBodeguero");
+  if (!select) return;
+
+  const state = getState();
+  const personal = state.personal || [];
+
+  let options = '<option value="todos">Todos</option>';
+  personal.forEach((emp) => {
+    options += `<option value="${emp.id}">${emp.nombre}</option>`;
+  });
+
+  select.innerHTML = options;
 }
 
 export function renderDashboard() {

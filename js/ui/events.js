@@ -64,6 +64,34 @@ export function bindEvents() {
     btnExportarTodos.addEventListener("click", exportarTodosPedidosExcel);
   }
 
+  const filtroBuscar = document.getElementById("filtroBuscar");
+  if (filtroBuscar) {
+    filtroBuscar.addEventListener("keyup", () => {
+      window.actualizarFiltros();
+    });
+  }
+
+  const filtroEstado = document.getElementById("filtroEstado");
+  if (filtroEstado) {
+    filtroEstado.addEventListener("change", () => {
+      window.actualizarFiltros();
+    });
+  }
+
+  const filtroBodeguero = document.getElementById("filtroBodeguero");
+  if (filtroBodeguero) {
+    filtroBodeguero.addEventListener("change", () => {
+      window.actualizarFiltros();
+    });
+  }
+
+  const btnLimpiarFiltros = document.getElementById("btnLimpiarFiltros");
+  if (btnLimpiarFiltros) {
+    btnLimpiarFiltros.addEventListener("click", () => {
+      window.limpiarFiltros();
+    });
+  }
+
   // Actualizar botones según permisos
   updateButtonsByRole();
 }
