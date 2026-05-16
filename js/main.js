@@ -9,6 +9,7 @@ import {
   actualizarFiltros,
   limpiarFiltros,
   cargarBodeguerosEnFiltro,
+  setTrazabilidadSearch,
 } from "./ui/render.js";
 import { applyRoleVisibility, initTabs } from "./ui/tabs.js";
 import { getState } from "./services/state.js";
@@ -37,24 +38,6 @@ import { registrarRegresoAlmuerzo } from "./modules/almuerzos.js";
 
 let currentTrazabilidadSearch = "";
 
-function setTrazabilidadSearch(searchTerm) {
-  currentTrazabilidadSearch = searchTerm;
-  // Aquí puedes llamar a una función que filtre la trazabilidad
-  // Por ahora, solo recargamos la vista de trazabilidad
-  const state = getState();
-  if (state.currentUser) {
-    import("./ui/render.js").then((module) => {
-      module.renderTrazabilidad();
-    });
-  }
-}
-
-// Función para manejar la búsqueda desde el HTML
-function handleTrazabilidadSearch(event) {
-  const searchTerm = event.target.value;
-  setTrazabilidadSearch(searchTerm);
-}
-
 // Exponer funciones globales
 window.eliminarEmpleado = eliminarEmpleado;
 window.reprogramarPedido = reprogramarPedido;
@@ -72,6 +55,13 @@ window.exportarReporteDiarioExcel = exportarReporteDiarioExcel;
 window.exportarTodosPedidosExcel = exportarTodosPedidosExcel;
 window.actualizarFiltros = actualizarFiltros;
 window.limpiarFiltros = limpiarFiltros;
+
+// ========== FUNCIÓN PARA BÚSQUEDA EN TRAZABILIDAD ==========
+window.handleTrazabilidadSearch = (event) => {
+  const searchTerm = event.target.value;
+  console.log("Buscando en trazabilidad:", searchTerm);
+  setTrazabilidadSearch(searchTerm);
+};
 
 // ========== LISTENER PARA CAMBIO DE VISTA DESDE NOTIFICACIONES ==========
 document.addEventListener("changeView", (e) => {
@@ -125,9 +115,3 @@ document.addEventListener("changeView", (e) => {
     }
   }, 500);
 })();
-
-// Función para manejar la búsqueda en trazabilidad
-window.handleTrazabilidadSearch = (event) => {
-  const searchTerm = event.target.value;
-  setTrazabilidadSearch(searchTerm);
-};

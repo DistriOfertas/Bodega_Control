@@ -13,6 +13,14 @@ let pedidosChart = null;
 let personalChart = null;
 let tendenciasChart = null;
 
+let trazabilidadSearchTerm = "";
+
+function setTrazabilidadSearch(searchTerm) {
+  console.log("setTrazabilidadSearch llamada con:", searchTerm);
+  trazabilidadSearchTerm = searchTerm;
+  renderTrazabilidad();
+}
+
 // Función principal de renderizado
 function render() {
   const state = getState();
@@ -601,7 +609,26 @@ export function renderTrazabilidad() {
     return;
   }
 
-  box.innerHTML = state.trazabilidad
+  // Aplicar filtro de búsqueda
+  let filteredLogs = [...state.trazabilidad];
+
+  if (trazabilidadSearchTerm && trazabilidadSearchTerm.trim() !== "") {
+    const searchTerm = trazabilidadSearchTerm.toLowerCase().trim();
+    filteredLogs = state.trazabilidad.filter(
+      (log) =>
+        (log.tipo && log.tipo.toLowerCase().includes(searchTerm)) ||
+        (log.detalle && log.detalle.toLowerCase().includes(searchTerm)) ||
+        (log.usuario && log.usuario.toLowerCase().includes(searchTerm)) ||
+        (log.rol && log.rol.toLowerCase().includes(searchTerm)),
+    );
+  }
+
+  if (filteredLogs.length === 0) {
+    box.innerHTML = `<div class="empty">No hay resultados para "${trazabilidadSearchTerm}"</div>`;
+    return;
+  }
+
+  box.innerHTML = filteredLogs
     .map(
       (t) => `<div class="order">
     <div class="order-top">
@@ -676,4 +703,5 @@ export {
   actualizarFiltros,
   limpiarFiltros,
   cargarBodeguerosEnFiltro,
+  setTrazabilidadSearch,
 };
