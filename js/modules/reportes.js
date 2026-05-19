@@ -56,8 +56,8 @@ export function generarReporte() {
   // Renderizar lista de pedidos del día
   renderReportePedidos(pedidosDelDia);
 
-  // Renderizar lista de almuerzos del día
-  renderReporteAlmuerzos(fecha);
+  // Renderizar lista de pausas del día
+  renderReportePausas(fecha);
 }
 
 // Renderizar pedidos del día
@@ -92,34 +92,34 @@ function renderReportePedidos(pedidos) {
     .join("");
 }
 
-// Renderizar almuerzos del día
-function renderReporteAlmuerzos(fecha) {
-  const container = document.getElementById("reporteAlmuerzos");
+// Renderizar pausas del día (desayunos y almuerzos)
+function renderReportePausas(fecha) {
+  const container = document.getElementById("reportePausas");
   if (!container) return;
 
   const state = getState();
-  const almuerzosDelDia = state.almuerzos.filter((a) =>
+  const pausasDelDia = (state.pausas || []).filter((a) =>
     sameDay(a.salida, fecha),
   );
 
-  if (almuerzosDelDia.length === 0) {
+  if (pausasDelDia.length === 0) {
     container.innerHTML =
-      '<div class="empty">No hay almuerzos registrados en esta fecha</div>';
+      '<div class="empty">No hay pausas registradas en esta fecha</div>';
     return;
   }
 
-  container.innerHTML = almuerzosDelDia
+  container.innerHTML = pausasDelDia
     .map(
       (a) => `
     <div class="order">
       <div class="order-top">
         <div>
-          <h3>${a.nombre}</h3>
-          <div class="muted small">${a.cargo || "Sin cargo"}</div>
+          <h3>${a.tipo === "desayuno" ? "🍳" : "🍽️"} ${a.nombre}</h3>
+          <div class="muted small">${a.cargo || "Sin cargo"} - ${a.tipo === "desayuno" ? "Desayuno" : "Almuerzo"}</div>
         </div>
       </div>
       <div class="meta">
-        <span>🍽️ Salida: ${fmtDateTime(a.salida)}</span>
+        <span>${a.tipo === "desayuno" ? "🍳 Salida:" : "🍽️ Salida:"} ${fmtDateTime(a.salida)}</span>
         <span>✅ Regreso: ${a.regreso ? fmtDateTime(a.regreso) : "Pendiente"}</span>
       </div>
     </div>
