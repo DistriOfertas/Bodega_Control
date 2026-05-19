@@ -265,31 +265,44 @@
         </div>
       </section>
 
-      <section id="view-almuerzo" class="hidden">
+      <section id="view-pausas" class="view hidden">
+        <h2>🍽️ Control de Pausas</h2>
+
+        <!-- Registrar pausa -->
         <div class="card">
-          <h2>Control de almuerzos</h2>
-          <p class="muted small">
-            Registra quién sale a almorzar y a qué hora regresa.
-          </p>
-          <div class="grid grid-2" style="margin-top: 10px">
+          <h3>Registrar pausa</h3>
+          <div class="grid grid-2" style="margin-bottom: 15px">
             <div>
-              <label>Colaborador</label>
-              <select id="almuerzoEmpleado"></select>
+              <label>👤 Colaborador</label>
+              <select id="pausaEmpleado"></select>
             </div>
           </div>
-          <div class="btns" style="margin-top: 12px">
-            <button class="btn-warn" id="btnSalidaAlmuerzo" type="button">
-              Registrar salida a almuerzo
+          <div class="btns" style="display: flex; gap: 10px">
+            <button id="btnSalidaDesayuno" class="btn-warning">
+              🍳 Salida a desayuno
+            </button>
+            <button id="btnSalidaAlmuerzo" class="btn-primary">
+              🍽️ Salida a almuerzo
             </button>
           </div>
         </div>
+
+        <!-- Desayunos activos -->
         <div class="card">
-          <h2>Quién está en almuerzo</h2>
+          <h3>🍳 Desayunos activos</h3>
+          <div id="listaDesayunoActivos"></div>
+        </div>
+
+        <!-- Almuerzos activos -->
+        <div class="card">
+          <h3>🍽️ Almuerzos activos</h3>
           <div id="listaAlmuerzoActivos"></div>
         </div>
+
+        <!-- Historial -->
         <div class="card">
-          <h2>Historial de almuerzos</h2>
-          <div id="listaAlmuerzoHistorial"></div>
+          <h3>📜 Historial de pausas</h3>
+          <div id="listaPausasHistorial"></div>
         </div>
       </section>
 
@@ -404,7 +417,7 @@
       <button class="tab" data-view="operacion">⚙️ Operación</button>
       <button class="tab" data-view="dashboard">📊 Dashboard</button>
       <button class="tab" data-view="historial">📜 Historial</button>
-      <button class="tab" data-view="almuerzo">🍽️ Almuerzo</button>
+      <button class="tab" data-view="pausas">⏸️ Pausas</button>
       <button class="tab" data-view="personal">👥 Personal</button>
       <button class="tab" data-view="reporte">📈 Reporte</button>
       <button class="tab" data-view="trazabilidad">🔍 Trazabilidad</button>

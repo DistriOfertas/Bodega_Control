@@ -34,7 +34,10 @@ import {
   iniciarRecibo,
   finalizarRecibo,
 } from "./modules/operaciones.js";
-import { registrarRegresoAlmuerzo } from "./modules/almuerzos.js";
+import {
+  registrarRegresoDesayuno,
+  registrarRegresoAlmuerzo,
+} from "./modules/pausas.js";
 
 let currentTrazabilidadSearch = "";
 
@@ -48,6 +51,7 @@ window.iniciarInventario = iniciarInventario;
 window.finalizarInventario = finalizarInventario;
 window.iniciarRecibo = iniciarRecibo;
 window.finalizarRecibo = finalizarRecibo;
+window.registrarRegresoDesayuno = registrarRegresoDesayuno;
 window.registrarRegresoAlmuerzo = registrarRegresoAlmuerzo;
 window.borrarTodo = borrarTodo;
 window.setTrazabilidadSearch = setTrazabilidadSearch;

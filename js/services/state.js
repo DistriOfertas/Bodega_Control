@@ -6,7 +6,7 @@ let state = {
   currentUser: null,
   deviceId: null,
   pedidos: [],
-  almuerzos: [],
+  pausas: [],
   personal: [],
   trazabilidad: [],
   users: { ...DEFAULT_USERS },

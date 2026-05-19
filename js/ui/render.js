@@ -40,7 +40,7 @@ function render() {
   renderOperacion();
   renderDashboard();
   renderHistorial();
-  renderAlmuerzos();
+  renderPausas();
   renderPersonal();
   renderTrazabilidad();
 
@@ -409,12 +409,12 @@ function mostrarVista(nombre) {
           "operacion",
           "dashboard",
           "historial",
-          "almuerzo",
+          "pausas",
           "personal",
           "reporte",
           "trazabilidad",
         ]
-      : ["operacion", "dashboard", "historial", "almuerzo", "reporte"];
+      : ["operacion", "dashboard", "historial", "pausas", "reporte"];
 
   if (!allowed.includes(nombre)) return;
 
@@ -423,7 +423,7 @@ function mostrarVista(nombre) {
     "operacion",
     "dashboard",
     "historial",
-    "almuerzo",
+    "pausas",
     "personal",
     "reporte",
     "trazabilidad",
@@ -535,34 +535,70 @@ export function renderHistorial() {
     .join("");
 }
 
-export function renderAlmuerzos() {
+export function renderPausas() {
   const state = getState();
-  const activos = state.almuerzos.filter((a) => !a.regreso);
+  const pausas = state.pausas || [];
 
-  const activosDiv = document.getElementById("listaAlmuerzoActivos");
-  if (activosDiv) {
-    activosDiv.innerHTML = activos.length
-      ? activos
+  // Separar por tipo
+  const desayunosActivos = pausas.filter(
+    (p) => p.tipo === "desayuno" && !p.regreso,
+  );
+  const almuerzosActivos = pausas.filter(
+    (p) => p.tipo === "almuerzo" && !p.regreso,
+  );
+  const historial = pausas.filter((p) => p.regreso);
+
+  // Renderizar desayunos activos
+  const desayunosDiv = document.getElementById("listaDesayunoActivos");
+  if (desayunosDiv) {
+    desayunosDiv.innerHTML = desayunosActivos.length
+      ? desayunosActivos
           .map(
-            (a) => `<div class="order">
-        <h3>${a.nombre}</h3>
-        <div class="meta">Salida: ${fmtDateTime(a.salida)}</div>
-        <button class="btn-primary" onclick="window.registrarRegresoAlmuerzo('${a.id}')">Regresar</button>
-      </div>`,
+            (p) => `
+        <div class="order">
+          <h3>🍳 ${p.nombre}</h3>
+          <div class="meta">Salida: ${fmtDateTime(p.salida)}</div>
+          <button class="btn-primary" onclick="window.registrarRegresoDesayuno('${p.id}')">Regresar</button>
+        </div>
+      `,
+          )
+          .join("")
+      : '<div class="empty">Nadie en desayuno</div>';
+  }
+
+  // Renderizar almuerzos activos
+  const almuerzosDiv = document.getElementById("listaAlmuerzoActivos");
+  if (almuerzosDiv) {
+    almuerzosDiv.innerHTML = almuerzosActivos.length
+      ? almuerzosActivos
+          .map(
+            (p) => `
+        <div class="order">
+          <h3>🍽️ ${p.nombre}</h3>
+          <div class="meta">Salida: ${fmtDateTime(p.salida)}</div>
+          <button class="btn-primary" onclick="window.registrarRegresoAlmuerzo('${p.id}')">Regresar</button>
+        </div>
+      `,
           )
           .join("")
       : '<div class="empty">Nadie en almuerzo</div>';
   }
 
-  const historialDiv = document.getElementById("listaAlmuerzoHistorial");
+  // Renderizar historial
+  const historialDiv = document.getElementById("listaPausasHistorial");
   if (historialDiv) {
-    historialDiv.innerHTML = state.almuerzos.length
-      ? state.almuerzos
+    historialDiv.innerHTML = historial.length
+      ? historial
           .map(
-            (a) => `<div class="order">
-        <h3>${a.nombre}</h3>
-        <div class="meta">Salida: ${fmtDateTime(a.salida)} | Regreso: ${fmtDateTime(a.regreso)}</div>
-      </div>`,
+            (p) => `
+        <div class="order">
+          <h3>${p.tipo === "desayuno" ? "🍳" : "🍽️"} ${p.nombre}</h3>
+          <div class="meta">
+            ${p.tipo === "desayuno" ? "Desayuno" : "Almuerzo"}: 
+            Salida ${fmtDateTime(p.salida)} | Regreso ${fmtDateTime(p.regreso)}
+          </div>
+        </div>
+      `,
           )
           .join("")
       : '<div class="empty">Sin historial</div>';

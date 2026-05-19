@@ -15,7 +15,7 @@ export function applyRoleVisibility() {
     "operacion",
     "dashboard",
     "historial",
-    "almuerzo",
+    "pausas",
     "personal",
     "reporte",
     "trazabilidad",
@@ -37,7 +37,7 @@ export function applyRoleVisibility() {
         "operacion",
         "dashboard",
         "historial",
-        "almuerzo",
+        "pausas",
         "reporte",
       ].includes(v);
     }

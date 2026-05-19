@@ -1,7 +1,12 @@
 import { login, logout } from "../modules/auth.js";
 import { crearPedido, cargarDemo, borrarTodo } from "../modules/pedidos.js";
 import { guardarEmpleado } from "../modules/personal.js";
-import { registrarSalidaAlmuerzo } from "../modules/almuerzos.js";
+import {
+  registrarSalidaDesayuno,
+  registrarSalidaAlmuerzo,
+  registrarRegresoDesayuno,
+  registrarRegresoAlmuerzo,
+} from "../modules/pausas.js";
 import { getState } from "../services/state.js";
 import { isAdmin } from "../services/state.js";
 import { render } from "./render.js";
@@ -29,10 +34,15 @@ export function bindEvents() {
   const btnBorrarTodo = document.getElementById("btnBorrarTodo");
   if (btnBorrarTodo) btnBorrarTodo.addEventListener("click", borrarTodo);
 
-  // Almuerzos
+  const btnSalidaDesayuno = document.getElementById("btnSalidaDesayuno");
+  if (btnSalidaDesayuno) {
+    btnSalidaDesayuno.addEventListener("click", registrarSalidaDesayuno);
+  }
+
   const btnSalidaAlmuerzo = document.getElementById("btnSalidaAlmuerzo");
-  if (btnSalidaAlmuerzo)
+  if (btnSalidaAlmuerzo) {
     btnSalidaAlmuerzo.addEventListener("click", registrarSalidaAlmuerzo);
+  }
 
   // Personal
   const btnGuardarPersonal = document.getElementById("btnGuardarPersonal");
@@ -107,7 +117,7 @@ export function llenarSelects() {
       : '<option value="">No hay empleados registrados</option>';
 
   const b = document.getElementById("bodegueroSelect");
-  const a = document.getElementById("almuerzoEmpleado");
+  const a = document.getElementById("pausaEmpleado");
   if (b) b.innerHTML = options;
   if (a) a.innerHTML = options;
 }
